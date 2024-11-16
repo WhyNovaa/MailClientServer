@@ -8,20 +8,19 @@ import java.util.Objects;
 import io.github.cdimascio.dotenv.Dotenv;
 
 public class ServerMain {
-    private static int port;
+    private static int PORT;
 
     public static void main(String[] args) {
         Dotenv dotenv = Dotenv.load();
-        port = Integer.parseInt(Objects.requireNonNull(dotenv.get("PORT")));
+        PORT = Integer.parseInt(Objects.requireNonNull(dotenv.get("PORT")));
 
-        try(ServerSocket serverSocket = new ServerSocket(port)) {
+        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             while(true) {
                 Socket socket = serverSocket.accept();
 
                 new Thread(new Handler(socket)).start();
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             System.err.println("Ошибка при работе сервера" + e);
         }
     }
