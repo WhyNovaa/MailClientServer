@@ -12,11 +12,11 @@ import io.github.cdimascio.dotenv.Dotenv;
 
 public class ClientMain {
 
-    private static int Port;
+    private static int PORT;
 
     public static void main(String[] args) {
         Dotenv dotenv = Dotenv.load();
-        Port = Integer.parseInt(Objects.requireNonNull(dotenv.get("PORT")));
+        PORT = Integer.parseInt(Objects.requireNonNull(dotenv.get("PORT")));
 
         Scanner in = new Scanner(System.in);
         System.out.println("Input login then password");
@@ -24,7 +24,7 @@ public class ClientMain {
         String password = in.nextLine();
         Authorization auth = new Authorization(login, password);
 
-        try (Socket sock = new Socket("localhost", Port)) {
+        try (Socket sock = new Socket("localhost", PORT)) {
             System.err.println("initialized");
             sendAuthorization(sock, auth);
         } catch (Exception e) {
