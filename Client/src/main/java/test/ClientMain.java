@@ -1,10 +1,9 @@
 package test;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -37,7 +36,9 @@ public class ClientMain {
     static void sendAuthorization(Socket sock, Authorization auth) {
         try (ObjectOutputStream outputStream = new ObjectOutputStream(sock.getOutputStream()))
         {
-            outputStream.writeUTF(auth.serializeToString());
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+            writer.write(auth.serializeToString());
+            writer.flush();
             outputStream.flush();
         }
         catch (IOException e) {

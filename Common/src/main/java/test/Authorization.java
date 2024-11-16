@@ -1,24 +1,24 @@
 package test;
 
 public class Authorization {
-    public static final String SEPARATOR = "\n";
-    private static String password;
-    private static String login;
+    public static final String SEPARATOR = ":";
+    private String password;
+    private String login;
 
-    public static String getLogin() {
+    public String getLogin() {
         return login;
     }
 
-    public static void setLogin(String login) {
-        Authorization.login = login;
+    public void setLogin(String login) {
+        this.login = login;
     }
 
-    public static String getPassword() {
+    public String getPassword() {
         return password;
     }
 
-    public static void setPassword(String password) {
-        Authorization.password = password;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     Authorization(String log, String pas){
