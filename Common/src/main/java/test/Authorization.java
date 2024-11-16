@@ -1,6 +1,7 @@
 package test;
 
 public class Authorization {
+    public static final String SEPARATOR = "\n";
     private static String password;
     private static String login;
 
@@ -23,5 +24,14 @@ public class Authorization {
     Authorization(String log, String pas){
         this.login = log;
         this.password = pas;
+    }
+
+    public String serializeToString(){
+        return this.login + SEPARATOR + this.password;
+    }
+
+    public static Authorization deserializeFromString(String str){
+        String[] arr = str.split(SEPARATOR);
+        return new Authorization(arr[0], arr[1]);
     }
 }
