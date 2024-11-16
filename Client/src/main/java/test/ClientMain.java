@@ -24,9 +24,7 @@ public class ClientMain {
         String password = in.nextLine();
         Authorization auth = new Authorization(login, password);
 
-        try (Socket sock = (args.length == 2 ?
-                new Socket(InetAddress.getLocalHost(), Port) :
-                new Socket(args[2], Port))) {
+        try (Socket sock = new Socket("localhost", Port)) {
             System.err.println("initialized");
             sendAuthorization(sock, auth);
         } catch (Exception e) {
@@ -37,10 +35,7 @@ public class ClientMain {
     }
 
     static void sendAuthorization(Socket sock, Authorization auth) {
-        try (
-                //Scanner in = new Scanner(System.in);
-                //ObjectInputStream inputStream = new ObjectInputStream(sock.getInputStream());
-                ObjectOutputStream outputStream = new ObjectOutputStream(sock.getOutputStream());)
+        try (ObjectOutputStream outputStream = new ObjectOutputStream(sock.getOutputStream()))
         {
             outputStream.writeUTF(auth.serializeToString());
             outputStream.flush();
