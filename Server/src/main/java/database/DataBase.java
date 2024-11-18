@@ -16,7 +16,18 @@ public class DataBase {
     public static void main(String[] args) throws SQLException {
         connectToDataBase();
         try {
-            add(new Authorization("Senya", "1111"));
+            //add(new Authorization("Senya", "1111"));
+            Statement stmt = con.createStatement();
+            String login = "Senya";  // Значения получены от пользователя
+            String sql = "SELECT * FROM USERS WHERE NAME = '" + login+"'";
+
+            ResultSet rs = stmt.executeQuery(sql);
+
+            if (rs.next()) {
+                System.out.println("User found: " + rs.getString("name"));
+            } else {
+                System.out.println("User not found.");
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
