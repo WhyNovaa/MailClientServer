@@ -1,9 +1,10 @@
-package test;
+package command_models;
+
+import tools.Separator;
 
 public class Authorization {
-    public static final String SEPARATOR = ":";
-    private String password;
     private String login;
+    private String password;
 
     public String getLogin() {
         return login;
@@ -21,17 +22,17 @@ public class Authorization {
         this.password = password;
     }
 
-    Authorization(String log, String pas){
+    public Authorization(String log, String pas){
         this.login = log;
         this.password = pas;
     }
 
     public String serializeToString(){
-        return this.login + SEPARATOR + this.password;
+        return this.login + Separator.SEPARATOR + this.password;
     }
 
     public static Authorization deserializeFromString(String str){
-        String[] arr = str.split(SEPARATOR);
+        String[] arr = str.split(Separator.SEPARATOR);
         return new Authorization(arr[0], arr[1]);
     }
 }

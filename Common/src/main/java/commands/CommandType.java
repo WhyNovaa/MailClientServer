@@ -1,4 +1,4 @@
-package test;
+package commands;
 
 public enum CommandType {
     REGISTER,

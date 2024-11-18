@@ -1,12 +1,11 @@
 package test;
 
 import java.io.*;
-import java.net.InetAddress;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Scanner;
 
+import command_models.Authorization;
 import io.github.cdimascio.dotenv.Dotenv;
 
 public class ClientMain {
