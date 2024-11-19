@@ -1,13 +1,11 @@
 package test;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.InetAddress;
+import java.io.*;
 import java.net.Socket;
 import java.util.Objects;
 import java.util.Scanner;
 
+import command_models.Authorization;
 import io.github.cdimascio.dotenv.Dotenv;
 
 public class ClientMain {
@@ -37,7 +35,9 @@ public class ClientMain {
     static void sendAuthorization(Socket sock, Authorization auth) {
         try (ObjectOutputStream outputStream = new ObjectOutputStream(sock.getOutputStream()))
         {
-            outputStream.writeUTF(auth.serializeToString());
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+            writer.write(auth.serializeToStr());
+            writer.flush();
             outputStream.flush();
         }
         catch (IOException e) {

@@ -53,8 +53,8 @@ class Handler implements Runnable {
             String message;
 
             while ((message = reader.readLine()) != null) {
-                System.out.println("Сообщение от клиента: " + message);
 
+                System.out.println(message);
                 writer.println("Сервер получил: " + message);
 
                 if (message.equalsIgnoreCase("exit")) {
