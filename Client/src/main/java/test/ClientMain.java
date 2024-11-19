@@ -36,7 +36,7 @@ public class ClientMain {
         try (ObjectOutputStream outputStream = new ObjectOutputStream(sock.getOutputStream()))
         {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
-            writer.write(auth.serializeToString());
+            writer.write(auth.serializeToStr());
             writer.flush();
             outputStream.flush();
         }

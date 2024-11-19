@@ -27,7 +27,7 @@ public class Authorization {
         this.password = pas;
     }
 
-    public String serializeToString(){
+    public String serializeToStr(){
         return this.login + Separator.SEPARATOR + this.password;
     }
 
