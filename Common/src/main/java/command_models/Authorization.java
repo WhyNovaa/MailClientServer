@@ -1,6 +1,9 @@
 package command_models;
 
+import commands.CommandAuthorization;
 import tools.Separator;
+
+import java.util.Objects;
 
 public class Authorization {
     private String login;
@@ -27,11 +30,21 @@ public class Authorization {
         this.password = pas;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Authorization auth = (Authorization) o;
+
+        return this.login.equals(auth.login) && this.password.equals(auth.password);
+    }
+
     public String serializeToStr(){
         return this.login + Separator.SEPARATOR + this.password;
     }
 
-    public static Authorization deserializeFromString(String str){
+    public static Authorization deserializeFromStr(String str){
         String[] arr = str.split(Separator.SEPARATOR);
         return new Authorization(arr[0], arr[1]);
     }

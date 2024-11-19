@@ -27,7 +27,22 @@ public class Registration {
         this.login = login;
     }
 
-    public String serializeToString(){
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Registration reg = (Registration) o;
+
+        return this.login.equals(reg.login) && this.password.equals(reg.password);
+    }
+
+    public String serializeToStr(){
         return this.login + Separator.SEPARATOR + this.password;
+    }
+
+    public static Registration deserializeFromStr(String str) {
+        String[] arr = str.split(Separator.SEPARATOR);
+        return new Registration(arr[0], arr[1]);
     }
 }

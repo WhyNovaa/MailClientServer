@@ -4,43 +4,42 @@ import java.sql.*;
 import java.util.Objects;
 
 import command_models.Authorization;
+import command_models.Registration;
 import io.github.cdimascio.dotenv.Dotenv;
-import org.h2.security.SHA256;
+import models.User;
 import tools.Sha256;
 
-import static java.lang.System.*;
 
 public class DataBase {
     private static Connection con;
 
     public static void main(String[] args) throws SQLException {
         connectToDataBase();
-        try {
+        /*try {
             //add(new Authorization("Senya", "1111"));
             String login = "Misha";  // Значения получены от пользователя
-            String sql = "SELECT * FROM USERS WHERE NAME = ?";
+            User u = getUser(login);
 
-            PreparedStatement pstmt = con.prepareStatement(sql);
-
-            pstmt.setString(1, login);
-            ResultSet rs = pstmt.executeQuery();
-
-
-            if (rs.next()) {
-                System.out.println("User found: " + rs.getString("name"));
+            if(u != null) {
+                System.out.println(u);
             } else {
-                System.out.println("User not found.");
+                System.out.println("User not found");
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
-        }
+        }*/
+        String aboba = "test";
+
+        System.out.println(Sha256.hash(aboba));
     }
 
     public static void connectToDataBase() throws SQLException {
+
         Dotenv dotenv = Dotenv.load();
         String URL = Objects.requireNonNull(dotenv.get("URL"));
         String USER = Objects.requireNonNull(dotenv.get("USER"));
         String PASSWORD = Objects.requireNonNull(dotenv.get("PASSWORD"));
+
         try {
             con = DriverManager.getConnection(URL,USER,PASSWORD );
             String req = "CREATE TABLE IF NOT EXISTS `USERS` (" +
@@ -48,26 +47,53 @@ public class DataBase {
                     "    `NAME` varchar(30)," +
                     "    `HASHED_PASSWORD` varchar(256)" +
                     ")";
+
            Statement state = con.createStatement();
            state.execute(req);
            state.close();
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 
     }
-    public static void add(Authorization auth) throws SQLException {
 
-        Statement st = con.createStatement();
-        String login = auth.getLogin(); // Замените на значение login
-        String hash = Sha256.hash(auth.getPassword());
-        String req = "INSERT INTO USERS(NAME, HASHED_PASSWORD) VALUES(?, ?);";// Замените на значение password
+    public static void addUser(Registration reg) throws SQLException {
+
+        String login = reg.getLogin(); // Замените на значение login
+        String hash = Sha256.hash(reg.getPassword());
+        String req = "INSERT INTO USERS(NAME, HASHED_PASSWORD) VALUES(?, ?);";
 
         PreparedStatement preparedStatement = con.prepareStatement(req);
 
-        preparedStatement.setString(1, login); // Установка значения для первого параметра
-        preparedStatement.setString(2, hash); // Установка значения для второго параметра
+        preparedStatement.setString(1, login);
+        preparedStatement.setString(2, hash);
 
-        preparedStatement.executeUpdate();
+        int amount = preparedStatement.executeUpdate();
+
+        if (amount > 0) {
+            System.out.println("User added: " + login);
+        }
+        else {
+            System.out.println("User not found.");
+        }
+    }
+
+    public static User getUser(String login) throws SQLException {
+
+        String req = "SELECT * FROM USERS WHERE NAME = ?";
+
+        PreparedStatement preparedStatement = con.prepareStatement(req);
+
+        preparedStatement.setString(1, login);
+
+        ResultSet rs = preparedStatement.executeQuery();
+
+        if(rs.next()) {
+            return new User(rs.getString("name"), rs.getString("hashed_password"));
+        }
+        else {
+            return null;
+        }
     }
 }

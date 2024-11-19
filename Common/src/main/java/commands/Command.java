@@ -14,24 +14,22 @@ public abstract class Command {
         return type;
     }
 
+
+    public abstract boolean equals(Object o);
+
     public abstract String serializeToStr();
 
     public static Command deserializeFromStr(String str) {
         String[] args = str.split(Separator.SEPARATOR);
         String type = args[0];
-        Command command = null;
-        switch (type) {
-            case "AUTHORIZATION":
-                command = new CommandAuthorization(new Authorization(args[1], args[2]));
-            case "REGISTRATION":
-                command = null; // TODO
-            case "SEND_MESSAGE":
-                command = null; // TODO
-            case "GET_MESSAGE":
-                command = null; // TODO
-            default:
-                command = null;
-        }
+        Command command = switch (type) {
+            case "LOGIN" -> new CommandAuthorization(new Authorization(args[1], args[2]));
+            case "REGISTER" -> new CommandRegistration(new Registration(args[1], args[2]));
+            case "SEND_MESSAGE" -> new CommandSendMessage(new Message(args[1], args[2], args[3], args[4]));
+            case "GET_MESSAGE" -> new CommandGetMessage(new Message(args[1], args[2], args[3], args[4]));
+            default -> null;
+        };
+
         return command;
     }
 }

@@ -3,6 +3,8 @@ package commands;
 import command_models.Authorization;
 import tools.Separator;
 
+import java.util.Objects;
+
 public class CommandAuthorization extends Command {
     private Authorization auth;
 
@@ -11,6 +13,16 @@ public class CommandAuthorization extends Command {
         this.auth = auth;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CommandAuthorization commandAuthorization = (CommandAuthorization) o;
+
+        return Objects.equals(this.auth, commandAuthorization.auth)
+                && Objects.equals(this.getType(), commandAuthorization.getType());
+    }
 
     @Override
     public String serializeToStr() {
