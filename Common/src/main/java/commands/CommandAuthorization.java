@@ -11,8 +11,13 @@ public class CommandAuthorization extends Command {
         this.auth = auth;
     }
 
+
     @Override
     public String serializeToStr() {
         return getType().toString() + Separator.SEPARATOR + auth.serializeToString();
+    }
+
+    public Authorization getAuthorization() {
+        return auth;
     }
 }
