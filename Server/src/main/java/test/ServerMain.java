@@ -46,8 +46,13 @@ public class ServerMain {
     }
 }
 
+
+
+
+
 class Handler implements Runnable {
 
+    BufferedWriter writer;
     Socket socket;
 
     public Handler(Socket socket) {
@@ -61,8 +66,18 @@ class Handler implements Runnable {
     public void setSocket(Socket socket) {
         this.socket = socket;
     }
-    static void sendRequest(Socket sock, String req) {
-        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()))) {
+
+    public void open_writer() {
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))){
+            this.writer = writer;
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    void sendRequest(String req) {
+        try {
             writer.write(req);
             writer.flush();
         } catch (IOException e) {
@@ -70,17 +85,17 @@ class Handler implements Runnable {
         }
     }
 
-    public void handleAuthorization(Socket socket, Authorization auth) {
+    public void handleAuthorization(Authorization auth) {
         try {
             User user = getUser(auth.getLogin());
             if(user == null) {
-                sendRequest(socket, "login not exists!");
+                sendRequest("login not exists!");
             }
             else {
                 if(user.getPassword().equals(Sha256.hash(auth.getPassword()))) {
-                    sendRequest(socket, "login success!");
+                    sendRequest("login success!");
                 } else {
-                    sendRequest(socket, "login failed!");
+                    sendRequest("login failed!");
                 }
             }
         } catch(SQLException e) {
@@ -88,11 +103,11 @@ class Handler implements Runnable {
         }
     }
 
-    public void handleRegistration(Socket socket, Registration reg) {
+    public void handleRegistration(Registration reg) {
         try {
             User user = getUser(reg.getLogin());
             if(user != null) {
-                sendRequest(socket, "Login already exists!");
+                sendRequest("Login already exists!");
             } else {
               addUser(reg);
             }
@@ -101,11 +116,11 @@ class Handler implements Runnable {
         }
     }
 
-    public void handleSendMessage(Socket socket, String msg) {
+    public void handleSendMessage(String msg) {
         // TODO
     }
 
-    public void handleGetMessage(Socket socket, String msg) {
+    public void handleGetMessage(String msg) {
         // TODO
     }
     @Override
@@ -114,37 +129,37 @@ class Handler implements Runnable {
                 InputStream input = socket.getInputStream();
                 OutputStream output = socket.getOutputStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-                PrintWriter writer = new PrintWriter(output, true)
         ) {
-            writer.println("Добро пожаловать на сервер!");
+            open_writer();
+            //writer.println("Добро пожаловать на сервер!");
             String message;
 
             while ((message = reader.readLine()) != null) {
 
                 System.out.println(message);
-                writer.println("Сервер получил: " + message);
+                //writer.println("Сервер получил: " + message);
 
                 Command command = Command.deserializeFromStr(message);
 
                 switch(command.getType()) {
                     case CommandType.LOGIN -> {
                         Authorization auth = ((CommandAuthorization) command).getAuthorization();
-                        handleAuthorization(socket, auth);
+                        handleAuthorization(auth);
                     }
                     case CommandType.REGISTER -> {
                         Registration reg = ((CommandRegistration) command).getRegistration();
-                        handleRegistration(socket, reg);
+                        handleRegistration(reg);
                     }
                     case CommandType.SEND_MESSAGE -> {
-                        handleSendMessage(socket, message);
+                        handleSendMessage(message);
                     }
                     case CommandType.GET_MESSAGE -> {
-                        handleGetMessage(socket, message);
+                        handleGetMessage(message);
                     }
                 }
 
                 if (message.equalsIgnoreCase("exit")) {
-                    writer.println("Прощайте!");
+                    sendRequest("Прощайте!");
                     break;
                 }
             }
