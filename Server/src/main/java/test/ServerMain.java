@@ -16,14 +16,21 @@ import io.github.cdimascio.dotenv.Dotenv;
 import models.User;
 import tools.Sha256;
 
-import static database.DataBase.addUser;
-import static database.DataBase.getUser;
+import static database.DataBase.*;
 
 public class ServerMain {
     private static int PORT;
 
     public static void main(String[] args) {
         Dotenv dotenv = Dotenv.load();
+
+        try {
+            connectToDataBase();
+        }
+        catch (SQLException e) {
+            System.err.println(e);
+        }
+
         PORT = Integer.parseInt(Objects.requireNonNull(dotenv.get("PORT")));
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
@@ -60,6 +67,45 @@ class Handler implements Runnable {
             throw new RuntimeException(e);
         }
     }
+
+    public void handleAuthorization(Socket socket, Authorization auth) {
+        try {
+            User user = getUser(auth.getLogin());
+            if(user == null) {
+                sendRequest(socket, "login not exists!");
+            }
+            else {
+                if(user.getPassword().equals(Sha256.hash(auth.getPassword()))) {
+                    sendRequest(socket, "login success!");
+                } else {
+                    sendRequest(socket, "login failed!");
+                }
+            }
+        } catch(SQLException e) {
+            System.err.println(e);
+        }
+    }
+
+    public void handleRegistration(Socket socket, Registration reg) {
+        try {
+            User user = getUser(reg.getLogin());
+            if(user != null) {
+                sendRequest(socket, "Login already exists!");
+            } else {
+              addUser(reg);
+            }
+        } catch(SQLException e) {
+            System.err.println(e);
+        }
+    }
+
+    public void handleSendMessage(Socket socket, String msg) {
+        // TODO
+    }
+
+    public void handleGetMessage(Socket socket, String msg) {
+        // TODO
+    }
     @Override
     public void run() {
         try (
@@ -75,30 +121,24 @@ class Handler implements Runnable {
 
                 System.out.println(message);
                 writer.println("Сервер получил: " + message);
+
                 Command command = Command.deserializeFromStr(message);
 
                 switch(command.getType()) {
                     case CommandType.LOGIN -> {
                         Authorization auth = ((CommandAuthorization) command).getAuthorization();
-                        try {
-                            User user = getUser(auth.getLogin());
-                            if(user == null) {
-                                sendRequest(socket, "login not exists!");
-                            }
-                            else {
-                                if(user.getPassword().equals(Sha256.hash(auth.getPassword()))) {
-                                    sendRequest(socket, "login success!");
-                                } else {
-                                    sendRequest(socket, "login failed!");
-                                }
-                            }
-                        } catch(SQLException e) {
-                            System.err.println(e);
-                        }
+                        handleAuthorization(socket, auth);
                     }
-                    case CommandType.REGISTER -> {} // TODO
-                    case CommandType.SEND_MESSAGE -> {} // TODO
-                    case CommandType.GET_MESSAGE -> {} // TODO
+                    case CommandType.REGISTER -> {
+                        Registration reg = ((CommandRegistration) command).getRegistration();
+                        handleRegistration(socket, reg);
+                    }
+                    case CommandType.SEND_MESSAGE -> {
+                        handleSendMessage(socket, message);
+                    }
+                    case CommandType.GET_MESSAGE -> {
+                        handleGetMessage(socket, message);
+                    }
                 }
 
                 if (message.equalsIgnoreCase("exit")) {

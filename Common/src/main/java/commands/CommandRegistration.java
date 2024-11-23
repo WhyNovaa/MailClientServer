@@ -29,7 +29,7 @@ public class CommandRegistration extends Command {
         return getType().toString() + Separator.SEPARATOR + reg.serializeToStr();
     }
 
-    public Registration getAuthorization() {
+    public Registration getRegistration() {
         return reg;
     }
 }
