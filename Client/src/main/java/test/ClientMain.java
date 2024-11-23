@@ -33,16 +33,11 @@ public class ClientMain {
     }
 
     static void sendAuthorization(Socket sock, Authorization auth) {
-        try (ObjectOutputStream outputStream = new ObjectOutputStream(sock.getOutputStream()))
-        {
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()))) {
             writer.write(auth.serializeToStr());
             writer.flush();
-            outputStream.flush();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 }
