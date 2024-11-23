@@ -12,6 +12,7 @@ import commands.Command;
 import commands.CommandAuthorization;
 import commands.CommandRegistration;
 import commands.CommandType;
+import database.DataBase;
 import io.github.cdimascio.dotenv.Dotenv;
 import models.User;
 import tools.Sha256;
@@ -22,10 +23,14 @@ import static database.DataBase.getUser;
 public class ServerMain {
     private static int PORT;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException {
         Dotenv dotenv = Dotenv.load();
         PORT = Integer.parseInt(Objects.requireNonNull(dotenv.get("PORT")));
-
+        try {
+            DataBase.connectToDataBase();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             while(true) {
                 Socket socket = serverSocket.accept();
@@ -39,6 +44,7 @@ public class ServerMain {
 }
 
 class Handler implements Runnable {
+
     Socket socket;
 
     public Handler(Socket socket) {
