@@ -3,9 +3,21 @@ package test;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.SQLException;
 import java.util.Objects;
 
+import command_models.Authorization;
+import command_models.Registration;
+import commands.Command;
+import commands.CommandAuthorization;
+import commands.CommandRegistration;
+import commands.CommandType;
 import io.github.cdimascio.dotenv.Dotenv;
+import models.User;
+import tools.Sha256;
+
+import static database.DataBase.addUser;
+import static database.DataBase.getUser;
 
 public class ServerMain {
     private static int PORT;
@@ -40,7 +52,14 @@ class Handler implements Runnable {
     public void setSocket(Socket socket) {
         this.socket = socket;
     }
-
+    static void sendRequest(Socket sock, String req) {
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()))) {
+            writer.write(req);
+            writer.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
     @Override
     public void run() {
         try (
@@ -56,6 +75,31 @@ class Handler implements Runnable {
 
                 System.out.println(message);
                 writer.println("Сервер получил: " + message);
+                Command command = Command.deserializeFromStr(message);
+
+                switch(command.getType()) {
+                    case CommandType.LOGIN -> {
+                        Authorization auth = ((CommandAuthorization) command).getAuthorization();
+                        try {
+                            User user = getUser(auth.getLogin());
+                            if(user == null) {
+                                sendRequest(socket, "login not exists!");
+                            }
+                            else {
+                                if(user.getPassword().equals(Sha256.hash(auth.getPassword()))) {
+                                    sendRequest(socket, "login success!");
+                                } else {
+                                    sendRequest(socket, "login failed!");
+                                }
+                            }
+                        } catch(SQLException e) {
+                            System.err.println(e);
+                        }
+                    }
+                    case CommandType.REGISTER -> {} // TODO
+                    case CommandType.SEND_MESSAGE -> {} // TODO
+                    case CommandType.GET_MESSAGE -> {} // TODO
+                }
 
                 if (message.equalsIgnoreCase("exit")) {
                     writer.println("Прощайте!");

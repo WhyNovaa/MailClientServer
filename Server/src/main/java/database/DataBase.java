@@ -55,7 +55,6 @@ public class DataBase {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     public static void addUser(Registration reg) throws SQLException {
