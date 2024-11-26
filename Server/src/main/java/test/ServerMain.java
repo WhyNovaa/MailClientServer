@@ -7,12 +7,9 @@ import java.sql.SQLException;
 import java.util.Objects;
 
 import command_models.Authorization;
+import command_models.Message;
 import command_models.Registration;
-import commands.Command;
-import commands.CommandAuthorization;
-import commands.CommandRegistration;
-import commands.CommandType;
-import database.DataBase;
+import commands.*;
 import io.github.cdimascio.dotenv.Dotenv;
 import models.User;
 import tools.Sha256;
@@ -22,14 +19,14 @@ import static database.DataBase.*;
 public class ServerMain {
     private static int PORT;
 
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) {
         Dotenv dotenv = Dotenv.load();
 
         try {
             connectToDataBase();
         }
         catch (SQLException e) {
-            System.err.println(e);
+            System.err.println(e.getMessage());
         }
 
         PORT = Integer.parseInt(Objects.requireNonNull(dotenv.get("PORT")));
@@ -57,6 +54,7 @@ class Handler implements Runnable {
 
     public Handler(Socket socket) {
         this.socket = socket;
+        open_writer();
     }
 
     public Socket getSocket() {
@@ -67,11 +65,10 @@ class Handler implements Runnable {
         this.socket = socket;
     }
 
-    public void open_writer() {
-        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))){
-            this.writer = writer;
-        }
-        catch (IOException e) {
+    public final void open_writer() {
+        try {
+            writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -99,7 +96,7 @@ class Handler implements Runnable {
                 }
             }
         } catch(SQLException e) {
-            System.err.println(e);
+            System.err.println(e.getMessage());
         }
     }
 
@@ -112,29 +109,33 @@ class Handler implements Runnable {
               addUser(reg);
             }
         } catch(SQLException e) {
-            System.err.println(e);
+            System.err.println(e.getMessage());
         }
     }
 
-    public void handleSendMessage(String msg) {
+    public void handleSendMessage(Message msg) {
         // TODO
     }
 
-    public void handleGetMessage(String msg) {
+    public void handleGetMessage(Message msg) {
         // TODO
     }
     @Override
     public void run() {
         try (
                 InputStream input = socket.getInputStream();
-                OutputStream output = socket.getOutputStream();
+                //OutputStream output = socket.getOutputStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(input));
         ) {
-            open_writer();
             //writer.println("Добро пожаловать на сервер!");
             String message;
 
             while ((message = reader.readLine()) != null) {
+
+                if (message.equalsIgnoreCase("exit")) {
+                    sendRequest("Прощайте!");
+                    break;
+                }
 
                 System.out.println(message);
                 //writer.println("Сервер получил: " + message);
@@ -151,16 +152,13 @@ class Handler implements Runnable {
                         handleRegistration(reg);
                     }
                     case CommandType.SEND_MESSAGE -> {
-                        handleSendMessage(message);
+                        Message mes = ((CommandSendMessage) command).getMessage();
+                        handleSendMessage(mes);
                     }
                     case CommandType.GET_MESSAGE -> {
-                        handleGetMessage(message);
+                        Message mes = ((CommandSendMessage) command).getMessage();
+                        handleGetMessage(mes);
                     }
-                }
-
-                if (message.equalsIgnoreCase("exit")) {
-                    sendRequest("Прощайте!");
-                    break;
                 }
             }
         } catch (IOException e) {
