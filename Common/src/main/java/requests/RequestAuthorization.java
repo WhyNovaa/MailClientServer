@@ -1,6 +1,5 @@
 package requests;
 
-import commands.CommandAuthorization;
 import tools.Separator;
 
 import java.util.Objects;

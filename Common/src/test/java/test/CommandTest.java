@@ -28,9 +28,8 @@ public class CommandTest {
 
     @Test
     public void isValidCommandGetMessageSerialization() {
-        Message mes = new Message("subject", "from", "to", "body");
-        CommandGetMessage commandGetMessage = new CommandGetMessage(mes);
-        String expected = "GET_MESSAGE" + Separator.SEPARATOR + "subject" + Separator.SEPARATOR + "from" + Separator.SEPARATOR + "to" + Separator.SEPARATOR + "body";
+        CommandGetMessage commandGetMessage = new CommandGetMessage();
+        String expected = "GET_MESSAGE";
         assertEquals(expected, commandGetMessage.serializeToStr());
     }
 
@@ -67,8 +66,7 @@ public class CommandTest {
     @Test
     public void isValidCommandDeserializationToCommandGetMessage() {
         //CommandGetMessage
-        Message mes = new Message("subject", "from", "to", "body");
-        CommandGetMessage expected = new CommandGetMessage(mes);
+        CommandGetMessage expected = new CommandGetMessage();
 
         String serializedCommand = expected.serializeToStr();
 
