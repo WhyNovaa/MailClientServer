@@ -38,15 +38,17 @@ public class ClientMain {
             new Thread(() -> {
                 try {
                     String serverMessage;
-                    while ((serverMessage = reader.readLine()) != null) {
-                        System.out.println(serverMessage);
+                    while(true) {
+                        if ((serverMessage = reader.readLine()) != null) {
+                            System.out.println(serverMessage);
+                        }
                     }
                 } catch (IOException e) {
-                    System.err.println("Соединение с сервером потеряно.");
+                    System.err.println(e.getMessage());
                 }
             }).start();
             sendAuthorization(socket,new CommandAuthorization(auth));
-            try {sleep(500);} catch (InterruptedException e) {System.err.println(e.getMessage());}
+            //try {sleep(500);} catch (InterruptedException e) {System.err.println(e.getMessage());}
 
         } catch (IOException e) {
             System.err.println("Ошибка клиента: " + e.getMessage());
@@ -55,8 +57,9 @@ public class ClientMain {
 
     }
     static void sendAuthorization(Socket socket, CommandAuthorization auth) {
-        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
-            writer.write(auth.serializeToStr());
+        try {
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            writer.write(auth.serializeToStr() + "\n"); // Добавляем перенос строки
             writer.flush();
         } catch (IOException e) {
             throw new RuntimeException(e);

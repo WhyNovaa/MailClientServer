@@ -77,6 +77,7 @@ class Handler implements Runnable {
         try {
             writer.write(req);
             writer.flush();
+            System.out.println(req + " sent");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
