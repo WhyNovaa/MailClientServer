@@ -22,12 +22,9 @@ public class ClientMain {
 
         System.out.println("Input login then password");
 
-        //Scanner in = new Scanner(System.in);
-        //String login = in.nextLine();
-        //String password = in.nextLine();
-
-        String login = "ABOBA";
-        String password = "ABOBA";
+        Scanner in = new Scanner(System.in);
+        String login = in.nextLine();
+        String password = in.nextLine();
 
         Authorization auth = new Authorization(login, password);
 
