@@ -6,8 +6,14 @@ import java.util.Objects;
 
 public class RequestSendMessage extends Request{
     Boolean sent;
+    private static final String state = "sent";
 
-    RequestSendMessage(String str) throws Exception {
+    RequestSendMessage(Boolean flag){
+        super(RequestType.SEND_MESSAGE);
+        sent = flag;
+    }
+
+    RequestSendMessage(String str) {
         super(RequestType.SEND_MESSAGE);
         try{
             this.sent = check(str);
@@ -18,8 +24,8 @@ public class RequestSendMessage extends Request{
     }
 
     Boolean check(String str)throws Exception{
-        if (str.equals("sent")) return true;
-        if (str.equals("not sent")) return false;
+        if (str.equals(state)) return true;
+        if (str.equals("not " + state)) return false;
         throw new Exception("incorrect state of sending");
     }
 
@@ -36,8 +42,8 @@ public class RequestSendMessage extends Request{
     @Override
     public String serializeToStr() {
         String str = getType().toString() + Separator.SEPARATOR ;
-        if (sent) str+= "sent";
-        else str+= "not sent";
+        if (sent) str+= state;
+        else str+= "not " + state;
         return  str;
     }
 }

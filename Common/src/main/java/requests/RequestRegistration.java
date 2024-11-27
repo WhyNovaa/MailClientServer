@@ -6,8 +6,14 @@ import java.util.Objects;
 
 public class RequestRegistration extends Request{
     Boolean registered;
+    private static final String state = "registered";
 
-    RequestRegistration(String str) throws Exception {
+    RequestRegistration(Boolean flag){
+        super(RequestType.SEND_MESSAGE);
+        registered = flag;
+    }
+
+    RequestRegistration(String str) {
         super(RequestType.REGISTER);
         try{
             this.registered = check(str);
@@ -18,8 +24,8 @@ public class RequestRegistration extends Request{
     }
 
     Boolean check(String str)throws Exception{
-        if (str.equals("registered")) return true;
-        if (str.equals("not registered")) return false;
+        if (str.equals(state)) return true;
+        if (str.equals("not " + state)) return false;
         throw new Exception("incorrect state of registration");
     }
 
@@ -36,8 +42,8 @@ public class RequestRegistration extends Request{
     @Override
     public String serializeToStr() {
         String str = getType().toString() + Separator.SEPARATOR ;
-        if (registered) str+= "registered";
-        else str+= "not registered";
+        if (registered) str+= state;
+        else str+= "not " + state;
         return  str;
     }
 }

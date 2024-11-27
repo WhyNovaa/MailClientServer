@@ -5,10 +5,15 @@ import tools.Separator;
 import java.util.Objects;
 
 public class RequestAuthorization extends Request{//2 possible answers but type specification needed
-
+    private static final String state = "authorized";
     Boolean authorized;
 
-    RequestAuthorization(String str) throws Exception {
+    RequestAuthorization(Boolean flag){
+        super(RequestType.SEND_MESSAGE);
+        authorized = flag;
+    }
+
+    RequestAuthorization(String str) {
         super(RequestType.LOGIN);
         try{
             this.authorized = check(str);
@@ -19,8 +24,8 @@ public class RequestAuthorization extends Request{//2 possible answers but type 
     }
 
     Boolean check(String str)throws Exception{
-        if (str.equals("authorized")) return true;
-        if (str.equals("not authorized")) return false;
+        if (str.equals(state)) return true;
+        if (str.equals("not " + state)) return false;
         throw new Exception("incorrect state of authorization");
     }
 
@@ -37,8 +42,8 @@ public class RequestAuthorization extends Request{//2 possible answers but type 
     @Override
     public String serializeToStr() {
         String str = getType().toString() + Separator.SEPARATOR ;
-        if (authorized) str+= "authorized";
-        else str+= "not authorized";
+        if (authorized) str+= state;
+        else str+= "not " + state;
       return  str;
     }
 }
