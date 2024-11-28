@@ -5,15 +5,19 @@ import tools.Separator;
 
 public abstract class Command {
     private CommandType type;
+    private String jwt_token;
 
-    public Command(CommandType type) {
+    public Command(CommandType type, String jwt_token) {
         this.type = type;
+        this.jwt_token = jwt_token;
     }
 
     public CommandType getType() {
         return type;
     }
-
+    public String getJwtToken() {
+        return jwt_token;
+    }
 
     public abstract boolean equals(Object o);
 
@@ -25,8 +29,8 @@ public abstract class Command {
         Command command = switch (type) {
             case "LOGIN" -> new CommandAuthorization(new Authorization(args[1], args[2]));
             case "REGISTER" -> new CommandRegistration(new Registration(args[1], args[2]));
-            case "SEND_MESSAGE" -> new CommandSendMessage(new Message(args[1], args[2], args[3], args[4]));
-            case "GET_MESSAGE" -> new CommandGetMessage();
+            case "SEND_MESSAGE" -> new CommandSendMessage(new Message(args[1], args[2], args[3], args[4]), args[5]);
+            case "GET_MESSAGE" -> new CommandGetMessage(args[1]);
             default -> null;
         };
 

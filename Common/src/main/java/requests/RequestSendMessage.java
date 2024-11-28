@@ -34,6 +34,10 @@ public class RequestSendMessage extends Request{
         throw new Exception("incorrect state of sending");
     }
 
+    public Boolean isSent(){
+        return is_sent;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

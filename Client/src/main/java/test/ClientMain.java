@@ -2,13 +2,20 @@ package test;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Scanner;
 
 import command_models.Authorization;
+import command_models.Message;
+import command_models.Registration;
 import commands.CommandAuthorization;
+import commands.CommandRegistration;
+import commands.CommandSendMessage;
+import commands.CommandType;
 import io.github.cdimascio.dotenv.Dotenv;
-import tools.Env;
+import requests.*;
+import requests.RequestType;
 
 import static java.lang.Thread.sleep;
 
@@ -16,16 +23,19 @@ import static java.lang.Thread.sleep;
 public class ClientMain {
 
     private static int PORT;
+    private static String jwt_token;
 
     public static void main(String[] args) {
-        PORT = Env.getPort();
+        Dotenv dotenv = Dotenv.load();
+        PORT = Integer.parseInt(Objects.requireNonNull(dotenv.get("PORT")));
 
-        System.out.println("Input login then password");
+        System.out.println("Input login then password to register");
 
         Scanner in = new Scanner(System.in);
         String login = in.nextLine();
         String password = in.nextLine();
 
+        //Registration reg = new Registration(login,password);
         Authorization auth = new Authorization(login, password);
 
         try (Socket socket = new Socket("localhost", PORT);
@@ -40,17 +50,19 @@ public class ClientMain {
                     String serverMessage;
                     while(true) {
                         if ((serverMessage = reader.readLine()) != null) {
-                            System.out.println(serverMessage);
+                            HandleRequest(serverMessage);
                         }
                     }
                 } catch (IOException e) {
                     System.err.println(e.getMessage());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
                 }
             }).start();
-            sendAuthorization(socket,new CommandAuthorization(auth));
-            while(true) {
 
-            }
+            //sendRegistration(socket,new CommandRegistration(reg));
+            sendAuthorization(socket,new CommandAuthorization(auth));
+            //try {sleep(500);} catch (InterruptedException e) {System.err.println(e.getMessage());}
 
         } catch (IOException e) {
             System.err.println("Ошибка клиента: " + e.getMessage());
@@ -58,6 +70,7 @@ public class ClientMain {
 
 
     }
+
     static void sendAuthorization(Socket socket, CommandAuthorization auth) {
         try {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -66,5 +79,52 @@ public class ClientMain {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    static void sendRegistration(Socket socket, CommandRegistration reg) {
+        try {
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            writer.write(reg.serializeToStr() + "\n"); // Добавляем перенос строки
+            writer.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    static void HandleRequest(String message) throws Exception {
+        Request req = Request.deserializeFromStr(message);
+
+        switch(req.getType()) {
+            case RequestType.LOGIN -> {
+                RequestAuthorization authRequest = (RequestAuthorization) req;
+                if (authRequest.isAuthorized()){
+                    System.out.println("Authorized successfully\n");
+                    jwt_token = authRequest.getJwt_token();
+                }
+                else System.out.println("Incorrect login or password\n");
+            }
+            case RequestType.REGISTER -> {
+                RequestRegistration regRequest = (RequestRegistration) req;
+                if (regRequest.isRegistered()){
+                    System.out.println("Registered successfully\n");
+                }
+                else System.out.println("Login already exists\n");
+            }
+            case RequestType.SEND_MESSAGE -> {
+                RequestSendMessage sendRequest = (RequestSendMessage) req;
+                if (sendRequest.isSent()){
+                    System.out.println("Your message had been sent\n");
+                }
+                else System.out.println("Your message hadn't been sent, user with this nickname probably dont exists\n");
+            }
+            case RequestType.GET_MESSAGE -> {
+                ArrayList<Message> mes = ((RequestGetMessage) req).getMessages();
+                if (mes.size() == 0) System.out.println("No new messages for you right now\n");
+                for (int i = 0; i<mes.size();i++){
+                    System.out.println(mes.get(i).serializeToStr());
+                }
+            }
+        }
+        System.out.println();
     }
 }

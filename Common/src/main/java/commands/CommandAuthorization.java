@@ -9,7 +9,7 @@ public class CommandAuthorization extends Command {
     private Authorization auth;
 
     public CommandAuthorization(Authorization auth) {
-        super(CommandType.LOGIN);
+        super(CommandType.LOGIN, " ");
         this.auth = auth;
     }
 
@@ -26,7 +26,7 @@ public class CommandAuthorization extends Command {
 
     @Override
     public String serializeToStr() {
-        return getType().toString() + Separator.SEPARATOR + auth.serializeToStr();
+        return getType().toString() + Separator.SEPARATOR + auth.serializeToStr() + Separator.SEPARATOR + getJwtToken();
     }
 
     public Authorization getAuthorization() {

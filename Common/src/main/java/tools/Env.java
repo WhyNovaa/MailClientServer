@@ -35,7 +35,7 @@ public class Env {
     }
 
     public static String getUsername() {
-        return Objects.requireNonNull(dotenv.get("USERNAME"));
+        return Objects.requireNonNull(dotenv.get("LOGIN_USERNAME"));
     }
 
     public static String getPassword() {

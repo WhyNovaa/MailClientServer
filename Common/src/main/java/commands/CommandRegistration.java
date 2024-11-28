@@ -9,7 +9,7 @@ public class CommandRegistration extends Command {
     private Registration reg;
 
     public CommandRegistration(Registration reg) {
-        super(CommandType.REGISTER);
+        super(CommandType.REGISTER, " ");
         this.reg = reg;
     }
 
@@ -26,7 +26,7 @@ public class CommandRegistration extends Command {
 
     @Override
     public String serializeToStr() {
-        return getType().toString() + Separator.SEPARATOR + reg.serializeToStr();
+        return getType().toString() + Separator.SEPARATOR + reg.serializeToStr() + Separator.SEPARATOR + getJwtToken();
     }
 
     public Registration getRegistration() {

@@ -15,8 +15,8 @@ public class RequestAuthorization extends Request{//2 possible answers but type 
 
     public RequestAuthorization(Boolean flag, String jwt){
         super(RequestType.LOGIN);
-        jwt_token = jwt;
         authorized = flag;
+        jwt_token = jwt;
     }
 
     public RequestAuthorization(String authorization, String jwt){
@@ -36,6 +36,13 @@ public class RequestAuthorization extends Request{//2 possible answers but type 
         throw new Exception("incorrect state of authorization");
     }
 
+    public Boolean isAuthorized(){
+        return authorized;
+    }
+
+    public String getJwt_token(){
+        return jwt_token;
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

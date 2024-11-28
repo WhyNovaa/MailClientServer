@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import command_models.Authorization;
 import command_models.Message;
@@ -11,7 +12,11 @@ import command_models.Registration;
 import commands.*;
 import models.User;
 import requests.RequestAuthorization;
+import requests.RequestGetMessage;
+import requests.RequestRegistration;
+import requests.RequestSendMessage;
 import tools.Env;
+import tools.JWT_TOKEN;
 import tools.Sha256;
 
 import static database.DataBase.*;
@@ -56,14 +61,6 @@ class Handler implements Runnable {
         open_writer();
     }
 
-    public Socket getSocket() {
-        return socket;
-    }
-
-    public void setSocket(Socket socket) {
-        this.socket = socket;
-    }
-
     public final void open_writer() {
         try {
             writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -76,7 +73,7 @@ class Handler implements Runnable {
         try {
             writer.write(req + "\n");
             writer.flush();
-            System.out.println(req + " sent");
+            System.out.println("Sent: " + req);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -86,13 +83,16 @@ class Handler implements Runnable {
         try {
             User user = getUser(auth.getLogin());
             if(user == null) {
-                sendRequest("login not exists!");
+                //Login incorrect
+                sendRequest(new RequestAuthorization(false, " ").serializeToStr());
             }
             else {
                 if(user.getPassword().equals(Sha256.hash(auth.getPassword()))) {
-                    sendRequest("login success!");
+                    String token = JWT_TOKEN.createJwt(auth.getLogin());
+                    sendRequest(new RequestAuthorization(true, token).serializeToStr());
                 } else {
-                    sendRequest("login failed!");
+                    //Wrong password
+                    sendRequest(new RequestAuthorization(false, " ").serializeToStr());
                 }
             }
         } catch(SQLException e) {
@@ -105,12 +105,12 @@ class Handler implements Runnable {
             User user = getUser(reg.getLogin());
 
             if(user != null) {
-                sendRequest("Login already exists!");
+                sendRequest(new RequestRegistration(false).serializeToStr());
             }
             else {
               addUser(reg);
               this.login = reg.getLogin();
-              sendRequest("Registration successful!");
+              sendRequest(new RequestRegistration(true).serializeToStr());
             }
         }
         catch(SQLException e) {
@@ -119,12 +119,17 @@ class Handler implements Runnable {
     }
 
     public void handleSendMessage(Message msg) {
-            // TODO
-    }
-
-    public void handleGetMessage(Message msg) {
         // TODO
     }
+
+    public void handleGetMessage(CommandGetMessage msg) {
+        // TODO
+    }
+
+    private Boolean checkJWT(String token) {
+        return JWT_TOKEN.validateJwt(token);
+    }
+
     @Override
     public void run() {
         try (
@@ -157,12 +162,20 @@ class Handler implements Runnable {
                         handleRegistration(reg);
                     }
                     case CommandType.SEND_MESSAGE -> {
-                        Message mes = ((CommandSendMessage) command).getMessage();
-                        handleSendMessage(mes);
+                        if(checkJWT(command.getJwtToken())) {
+                            Message mes = ((CommandSendMessage) command).getMessage();
+                            handleSendMessage(mes);
+                        } else {
+                            sendRequest(new RequestSendMessage(false).serializeToStr());
+                        }
                     }
                     case CommandType.GET_MESSAGE -> {
-                        Message mes = ((CommandSendMessage) command).getMessage();
-                        handleGetMessage(mes);
+                        if(checkJWT(command.getJwtToken())) {
+                            handleGetMessage((CommandGetMessage) command);
+                        }
+                        else {
+                            sendRequest(new RequestGetMessage(new ArrayList<Message>()).serializeToStr());
+                        }
                     }
                 }
             }

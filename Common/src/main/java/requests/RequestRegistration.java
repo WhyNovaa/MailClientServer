@@ -33,6 +33,10 @@ public class RequestRegistration extends Request{
         throw new Exception("incorrect state of registration");
     }
 
+    public Boolean isRegistered(){
+        return registered;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
