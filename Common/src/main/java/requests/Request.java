@@ -6,6 +6,8 @@ import command_models.Registration;
 import commands.*;
 import tools.Separator;
 
+import java.util.ArrayList;
+
 public abstract class Request {
     private RequestType type;
 
@@ -28,13 +30,33 @@ public abstract class Request {
         Request req = switch (type) {
             case "LOGIN" -> {
                 try {
-                    yield new RequestAuthorization(args[1]);
+                    yield new RequestAuthorization(args[1], args[2]);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             }
-            //case "REGISTER" -> new RequestRegistration(new Registration(args[1], args[2]));
-            //case "MESSAGE" -> new  RequestMessage(new Message(args[1], args[2], args[3], args[4]));
+
+            case "REGISTER" -> {
+                try {
+                    yield new RequestRegistration(args[1]);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            case "GET_MESSAGE" -> {
+                ArrayList<Message> messages = new ArrayList<>();
+                for (int i = 1; i < args.length; i += 4) {
+                    String subject = (i < args.length) ? args[i] : "";
+                    String from = (i + 1 < args.length) ? args[i + 1] : "";
+                    String to = (i + 2 < args.length) ? args[i + 2] : "";
+                    String body = (i + 3 < args.length) ? args[i + 3] : "";
+                    messages.add(new Message(subject, from, to, body));
+                }
+                yield new RequestGetMessage(messages);
+            }
+
+            case "SEND_MESSAGE" -> new RequestSendMessage(args[1]);
             default -> null;
         };
 

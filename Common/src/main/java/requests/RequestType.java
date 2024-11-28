@@ -3,5 +3,6 @@ package requests;
 public enum RequestType {
     REGISTER,
     LOGIN,
-    MESSAGE;
+    SEND_MESSAGE,
+    GET_MESSAGE;
 }

@@ -26,7 +26,7 @@ public abstract class Command {
             case "LOGIN" -> new CommandAuthorization(new Authorization(args[1], args[2]));
             case "REGISTER" -> new CommandRegistration(new Registration(args[1], args[2]));
             case "SEND_MESSAGE" -> new CommandSendMessage(new Message(args[1], args[2], args[3], args[4]));
-            case "GET_MESSAGE" -> new CommandGetMessage(new Message(args[1], args[2], args[3], args[4]));
+            case "GET_MESSAGE" -> new CommandGetMessage();
             default -> null;
         };
 
