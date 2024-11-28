@@ -3,23 +3,21 @@ package database;
 import java.sql.*;
 import java.util.Objects;
 
-import command_models.Authorization;
 import command_models.Registration;
-import io.github.cdimascio.dotenv.Dotenv;
 import models.User;
+import tools.Env;
 import tools.Sha256;
 
 public class DataBase {
     private static Connection con;
     public static void connectToDataBase() throws SQLException {
 
-        Dotenv dotenv = Dotenv.load();
-        String URL = Objects.requireNonNull(dotenv.get("URL"));
-        String USER = Objects.requireNonNull(dotenv.get("USER"));
-        String PASSWORD = Objects.requireNonNull(dotenv.get("PASSWORD"));
+        String URL = Env.getURL();
+        String USERNAME = Env.getUsername();
+        String PASSWORD = Env.getPassword();
 
         try {
-            con = DriverManager.getConnection(URL,USER,PASSWORD );
+            con = DriverManager.getConnection(URL,USERNAME,PASSWORD );
             String req = "CREATE TABLE IF NOT EXISTS `USERS` (" +
                     "    `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY," +
                     "    `NAME` varchar(30)," +

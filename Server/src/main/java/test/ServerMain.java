@@ -4,14 +4,14 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.SQLException;
-import java.util.Objects;
 
 import command_models.Authorization;
 import command_models.Message;
 import command_models.Registration;
 import commands.*;
-import io.github.cdimascio.dotenv.Dotenv;
 import models.User;
+import requests.RequestAuthorization;
+import tools.Env;
 import tools.Sha256;
 
 import static database.DataBase.*;
@@ -20,8 +20,6 @@ public class ServerMain {
     private static int PORT;
 
     public static void main(String[] args) {
-        Dotenv dotenv = Dotenv.load();
-
         try {
             connectToDataBase();
         }
@@ -29,7 +27,7 @@ public class ServerMain {
             System.err.println(e.getMessage());
         }
 
-        PORT = Integer.parseInt(Objects.requireNonNull(dotenv.get("PORT")));
+        PORT = Env.getPort();
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             while(true) {
@@ -51,6 +49,7 @@ class Handler implements Runnable {
 
     BufferedWriter writer;
     Socket socket;
+    String login;
 
     public Handler(Socket socket) {
         this.socket = socket;
@@ -104,18 +103,23 @@ class Handler implements Runnable {
     public void handleRegistration(Registration reg) {
         try {
             User user = getUser(reg.getLogin());
+
             if(user != null) {
                 sendRequest("Login already exists!");
-            } else {
-              addUser(reg);
             }
-        } catch(SQLException e) {
+            else {
+              addUser(reg);
+              this.login = reg.getLogin();
+              sendRequest("Registration successful!");
+            }
+        }
+        catch(SQLException e) {
             System.err.println(e.getMessage());
         }
     }
 
     public void handleSendMessage(Message msg) {
-        // TODO
+            // TODO
     }
 
     public void handleGetMessage(Message msg) {

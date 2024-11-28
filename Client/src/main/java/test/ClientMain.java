@@ -8,6 +8,7 @@ import java.util.Scanner;
 import command_models.Authorization;
 import commands.CommandAuthorization;
 import io.github.cdimascio.dotenv.Dotenv;
+import tools.Env;
 
 import static java.lang.Thread.sleep;
 
@@ -17,8 +18,7 @@ public class ClientMain {
     private static int PORT;
 
     public static void main(String[] args) {
-        Dotenv dotenv = Dotenv.load();
-        PORT = Integer.parseInt(Objects.requireNonNull(dotenv.get("PORT")));
+        PORT = Env.getPort();
 
         System.out.println("Input login then password");
 
