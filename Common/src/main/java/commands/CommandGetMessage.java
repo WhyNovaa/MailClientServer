@@ -1,6 +1,8 @@
 package commands;
 
 import command_models.Message;
+import tools.JWT_TOKEN;
+import tools.Separator;
 
 import java.util.Objects;
 
@@ -21,6 +23,6 @@ public class CommandGetMessage extends Command {
 
     @Override
     public String serializeToStr() {
-        return getType().toString();
+        return getType().toString() + Separator.SEPARATOR + getJwtToken();
     }
 }

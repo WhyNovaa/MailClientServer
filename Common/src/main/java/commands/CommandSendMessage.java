@@ -26,7 +26,7 @@ public class CommandSendMessage extends Command {
 
     @Override
     public String serializeToStr() {
-        return this.getType().toString() + Separator.SEPARATOR + mes.serializeToStr();
+        return this.getType().toString() + Separator.SEPARATOR + mes.serializeToStr() + Separator.SEPARATOR + getJwtToken();
     }
 
     public Message getMessage() {

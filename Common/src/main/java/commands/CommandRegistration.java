@@ -26,7 +26,7 @@ public class CommandRegistration extends Command {
 
     @Override
     public String serializeToStr() {
-        return getType().toString() + Separator.SEPARATOR + reg.serializeToStr();
+        return getType().toString() + Separator.SEPARATOR + reg.serializeToStr() + Separator.SEPARATOR + getJwtToken();
     }
 
     public Registration getRegistration() {

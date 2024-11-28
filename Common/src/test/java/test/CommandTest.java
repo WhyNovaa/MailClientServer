@@ -14,7 +14,7 @@ public class CommandTest {
     public void isValidCommandAuthorizationSerialization() {
         Authorization auth = new Authorization("admin", "admin");
         CommandAuthorization commandAuthorization = new CommandAuthorization(auth);
-        String expected = "LOGIN" + Separator.SEPARATOR + "admin" + Separator.SEPARATOR + "admin";
+        String expected = "LOGIN" + Separator.SEPARATOR + "admin" + Separator.SEPARATOR + "admin" + Separator.SEPARATOR + " ";
         assertEquals(expected, commandAuthorization.serializeToStr());
     }
 
@@ -22,22 +22,22 @@ public class CommandTest {
     public void isValidCommandRegistrationSerialization() {
         Registration reg = new Registration("admin", "admin");
         CommandRegistration commandRegistration = new CommandRegistration(reg);
-        String expected = "REGISTER" + Separator.SEPARATOR + "admin" + Separator.SEPARATOR + "admin";
+        String expected = "REGISTER" + Separator.SEPARATOR + "admin" + Separator.SEPARATOR + "admin" + Separator.SEPARATOR + " ";
         assertEquals(expected, commandRegistration.serializeToStr());
     }
 
     @Test
     public void isValidCommandGetMessageSerialization() {
-        CommandGetMessage commandGetMessage = new CommandGetMessage();
-        String expected = "GET_MESSAGE";
+        CommandGetMessage commandGetMessage = new CommandGetMessage("JWT");
+        String expected = "GET_MESSAGE:JWT";
         assertEquals(expected, commandGetMessage.serializeToStr());
     }
 
     @Test
     public void isValidCommandSendMessageSerialization() {
         Message mes = new Message("subject", "from", "to", "body");
-        CommandSendMessage commandSendMessage = new CommandSendMessage(mes);
-        String expected = "SEND_MESSAGE" + Separator.SEPARATOR + "subject" + Separator.SEPARATOR + "from" + Separator.SEPARATOR + "to" + Separator.SEPARATOR + "body";
+        CommandSendMessage commandSendMessage = new CommandSendMessage(mes, "JWT");
+        String expected = "SEND_MESSAGE" + Separator.SEPARATOR + "subject" + Separator.SEPARATOR + "from" + Separator.SEPARATOR + "to" + Separator.SEPARATOR + "body" + Separator.SEPARATOR + "JWT";
         assertEquals(expected, commandSendMessage.serializeToStr());
     }
 
@@ -66,7 +66,7 @@ public class CommandTest {
     @Test
     public void isValidCommandDeserializationToCommandGetMessage() {
         //CommandGetMessage
-        CommandGetMessage expected = new CommandGetMessage();
+        CommandGetMessage expected = new CommandGetMessage("JWT");
 
         String serializedCommand = expected.serializeToStr();
 
@@ -78,7 +78,7 @@ public class CommandTest {
     public void isValidCommandDeserializationToCommandSendMessage() {
         //CommandSendMessage
         Message mes = new Message("subject", "from", "to", "body");
-        CommandSendMessage expected = new CommandSendMessage(mes);
+        CommandSendMessage expected = new CommandSendMessage(mes, "JWT");
 
         String serializedCommand = expected.serializeToStr();
 
