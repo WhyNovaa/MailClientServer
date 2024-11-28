@@ -8,12 +8,17 @@ public class RequestSendMessage extends Request{
     Boolean sent;
     private static final String state = "sent";
 
-    RequestSendMessage(Boolean flag){
+    public String getState(){
+        return state;
+    }
+
+    public RequestSendMessage(Boolean flag){
         super(RequestType.SEND_MESSAGE);
         sent = flag;
     }
 
-    RequestSendMessage(String str) {
+
+    public RequestSendMessage(String str) {
         super(RequestType.SEND_MESSAGE);
         try{
             this.sent = check(str);

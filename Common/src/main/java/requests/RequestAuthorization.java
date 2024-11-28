@@ -8,12 +8,15 @@ public class RequestAuthorization extends Request{//2 possible answers but type 
     private static final String state = "authorized";
     Boolean authorized;
 
-    RequestAuthorization(Boolean flag){
+    public String getState(){
+        return state;
+    }
+    public RequestAuthorization(Boolean flag){
         super(RequestType.SEND_MESSAGE);
         authorized = flag;
     }
 
-    RequestAuthorization(String str) {
+    public RequestAuthorization(String str) {
         super(RequestType.LOGIN);
         try{
             this.authorized = check(str);

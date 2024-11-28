@@ -8,12 +8,16 @@ public class RequestRegistration extends Request{
     Boolean registered;
     private static final String state = "registered";
 
-    RequestRegistration(Boolean flag){
+    public String getState(){
+        return state;
+    }
+
+    public RequestRegistration(Boolean flag){
         super(RequestType.SEND_MESSAGE);
         registered = flag;
     }
 
-    RequestRegistration(String str) {
+    public RequestRegistration(String str) {
         super(RequestType.REGISTER);
         try{
             this.registered = check(str);
