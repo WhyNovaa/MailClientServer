@@ -25,9 +25,9 @@ public class JWT {
                     .setSigningKey(SecretKeyLoader.getSecretKey())
                     .parseClaimsJws(token); // Проверяет токен
             return true;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return false;
+        }
     }
 }
 
