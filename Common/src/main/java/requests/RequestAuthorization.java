@@ -12,7 +12,7 @@ public class RequestAuthorization extends Request{//2 possible answers but type 
         return state;
     }
     public RequestAuthorization(Boolean flag){
-        super(RequestType.SEND_MESSAGE);
+        super(RequestType.LOGIN);
         authorized = flag;
     }
 

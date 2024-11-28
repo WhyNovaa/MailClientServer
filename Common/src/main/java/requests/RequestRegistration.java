@@ -13,7 +13,7 @@ public class RequestRegistration extends Request{
     }
 
     public RequestRegistration(Boolean flag){
-        super(RequestType.SEND_MESSAGE);
+        super(RequestType.REGISTER);
         registered = flag;
     }
 
