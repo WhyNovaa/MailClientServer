@@ -29,8 +29,8 @@ public abstract class Command {
         Command command = switch (type) {
             case "LOGIN" -> new CommandAuthorization(new Authorization(args[1], args[2]));
             case "REGISTER" -> new CommandRegistration(new Registration(args[1], args[2]));
-            case "SEND_MESSAGE" -> new CommandSendMessage(new Message(args[1], args[2], args[3], args[4]));
-            case "GET_MESSAGE" -> new CommandGetMessage();
+            case "SEND_MESSAGE" -> new CommandSendMessage(new Message(args[1], args[2], args[3], args[4]), args[5]);
+            case "GET_MESSAGE" -> new CommandGetMessage(args[1]);
             default -> null;
         };
 
