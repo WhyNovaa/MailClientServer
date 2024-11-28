@@ -15,8 +15,6 @@ public class DataBase {
         String URL = Env.getURL();
         String USERNAME = Env.getUsername();
         String PASSWORD = Env.getPassword();
-
-        System.out.println(URL + '\n' + USERNAME + '\n' + PASSWORD);
         try {
             con = DriverManager.getConnection(URL,USERNAME,PASSWORD );
             String req = "CREATE TABLE IF NOT EXISTS `USERS` (" +
