@@ -30,7 +30,7 @@ public abstract class Request {
         Request req = switch (type) {
             case "LOGIN" -> {
                 try {
-                    yield new RequestAuthorization(args[1]);
+                    yield new RequestAuthorization(args[1], args[2]);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
