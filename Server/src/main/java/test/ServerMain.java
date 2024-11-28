@@ -11,7 +11,9 @@ import command_models.Registration;
 import commands.*;
 import models.User;
 import requests.RequestAuthorization;
+import requests.RequestRegistration;
 import tools.Env;
+import tools.JWT_TOKEN;
 import tools.Sha256;
 
 import static database.DataBase.*;
@@ -56,14 +58,6 @@ class Handler implements Runnable {
         open_writer();
     }
 
-    public Socket getSocket() {
-        return socket;
-    }
-
-    public void setSocket(Socket socket) {
-        this.socket = socket;
-    }
-
     public final void open_writer() {
         try {
             writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -86,13 +80,16 @@ class Handler implements Runnable {
         try {
             User user = getUser(auth.getLogin());
             if(user == null) {
-                sendRequest("login not exists!");
+                //Login incorrect
+                sendRequest(new RequestAuthorization(false, "").serializeToStr());
             }
             else {
                 if(user.getPassword().equals(Sha256.hash(auth.getPassword()))) {
-                    sendRequest("login success!");
+                    String token = JWT_TOKEN.createJwt(auth.getLogin());
+                    sendRequest(new RequestAuthorization(true, token).serializeToStr());
                 } else {
-                    sendRequest("login failed!");
+                    //Wrong password
+                    sendRequest(new RequestAuthorization(false, "").serializeToStr());
                 }
             }
         } catch(SQLException e) {
@@ -105,12 +102,12 @@ class Handler implements Runnable {
             User user = getUser(reg.getLogin());
 
             if(user != null) {
-                sendRequest("Login already exists!");
+                sendRequest(new RequestRegistration(false).serializeToStr());
             }
             else {
               addUser(reg);
               this.login = reg.getLogin();
-              sendRequest("Registration successful!");
+              sendRequest(new RequestRegistration(true).serializeToStr());
             }
         }
         catch(SQLException e) {
@@ -119,7 +116,7 @@ class Handler implements Runnable {
     }
 
     public void handleSendMessage(Message msg) {
-            // TODO
+        // TODO
     }
 
     public void handleGetMessage(Message msg) {
