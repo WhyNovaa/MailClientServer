@@ -1,8 +1,10 @@
 package tools;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.github.cdimascio.dotenv.Dotenv;
+import io.jsonwebtoken.SignatureException;
 
 import java.util.Date;
 
@@ -17,11 +19,15 @@ public class JWT {
                 .compact();
     }
 
-    public static void validateJwt(String token) {
-        Jwts.parser()
-                .setSigningKey(SecretKeyLoader.getSecretKey())
-                .parseClaimsJws(token);
-        System.out.println("JWT is valid!");
+    public static boolean validateJwt(String token) {
+        try {
+            Jwts.parser()
+                    .setSigningKey(SecretKeyLoader.getSecretKey())
+                    .parseClaimsJws(token); // Проверяет токен
+            return true;
+        }
+        catch (Exception e) {
+            return false;
     }
 }
 
