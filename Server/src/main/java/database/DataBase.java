@@ -16,6 +16,7 @@ public class DataBase {
         String USERNAME = Env.getUsername();
         String PASSWORD = Env.getPassword();
 
+        System.out.println(URL + '\n' + USERNAME + '\n' + PASSWORD);
         try {
             con = DriverManager.getConnection(URL,USERNAME,PASSWORD );
             String req = "CREATE TABLE IF NOT EXISTS `USERS` (" +
@@ -35,7 +36,7 @@ public class DataBase {
 
     public static void addUser(Registration reg) throws SQLException {
 
-        String login = reg.getLogin(); // Замените на значение login
+        String login = reg.getLogin();
         String hash = Sha256.hash(reg.getPassword());
         String req = "INSERT INTO USERS(NAME, HASHED_PASSWORD) VALUES(?, ?);";
 
