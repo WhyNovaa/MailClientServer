@@ -8,8 +8,8 @@ import java.util.Objects;
 public class CommandSendMessage extends Command {
     private Message mes;
 
-    public CommandSendMessage(Message mes) {
-        super(CommandType.SEND_MESSAGE);
+    public CommandSendMessage(Message mes, String jwt_token) {
+        super(CommandType.SEND_MESSAGE, jwt_token);
         this.mes = mes;
     }
 

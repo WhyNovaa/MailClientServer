@@ -5,15 +5,19 @@ import tools.Separator;
 
 public abstract class Command {
     private CommandType type;
+    private String jwt_token;
 
-    public Command(CommandType type) {
+    public Command(CommandType type, String jwt_token) {
         this.type = type;
+        this.jwt_token = jwt_token;
     }
 
     public CommandType getType() {
         return type;
     }
-
+    public String getJwtToken() {
+        return jwt_token;
+    }
 
     public abstract boolean equals(Object o);
 

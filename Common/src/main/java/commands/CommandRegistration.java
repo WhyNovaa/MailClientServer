@@ -9,7 +9,7 @@ public class CommandRegistration extends Command {
     private Registration reg;
 
     public CommandRegistration(Registration reg) {
-        super(CommandType.REGISTER);
+        super(CommandType.REGISTER, " ");
         this.reg = reg;
     }
 
