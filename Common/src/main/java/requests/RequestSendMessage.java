@@ -5,23 +5,23 @@ import tools.Separator;
 import java.util.Objects;
 
 public class RequestSendMessage extends Request{
-    Boolean sent;
+    Boolean is_sent;
     private static final String state = "sent";
 
     public String getState(){
         return state;
     }
 
-    public RequestSendMessage(Boolean flag){
+    public RequestSendMessage(Boolean is_sent){
         super(RequestType.SEND_MESSAGE);
-        sent = flag;
+        this.is_sent = is_sent;
     }
 
 
     public RequestSendMessage(String str) {
         super(RequestType.SEND_MESSAGE);
         try{
-            this.sent = check(str);
+            this.is_sent = check(str);
         }
         catch(Exception e){
             throw new RuntimeException(e);
@@ -41,13 +41,13 @@ public class RequestSendMessage extends Request{
 
         RequestSendMessage req = (RequestSendMessage) o;
 
-        return Objects.equals(this.sent, req.sent) && Objects.equals(this.getType(), req.getType());
+        return Objects.equals(this.is_sent, req.is_sent) && Objects.equals(this.getType(), req.getType());
     }
 
     @Override
     public String serializeToStr() {
         String str = getType().toString() + Separator.SEPARATOR ;
-        if (sent) str+= state;
+        if (is_sent) str+= state;
         else str+= "not " + state;
         return  str;
     }
