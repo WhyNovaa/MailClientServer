@@ -9,30 +9,8 @@ import io.github.cdimascio.dotenv.Dotenv;
 import models.User;
 import tools.Sha256;
 
-
 public class DataBase {
     private static Connection con;
-
-    public static void main(String[] args) throws SQLException {
-        connectToDataBase();
-        /*try {
-            //add(new Authorization("Senya", "1111"));
-            String login = "Misha";  // Значения получены от пользователя
-            User u = getUser(login);
-
-            if(u != null) {
-                System.out.println(u);
-            } else {
-                System.out.println("User not found");
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }*/
-        String aboba = "test";
-
-        System.out.println(Sha256.hash(aboba));
-    }
-
     public static void connectToDataBase() throws SQLException {
 
         Dotenv dotenv = Dotenv.load();

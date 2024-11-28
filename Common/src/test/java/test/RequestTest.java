@@ -6,13 +6,13 @@ import commands.CommandSendMessage;
 import org.junit.jupiter.api.Test;
 import requests.Request;
 import requests.*;
-import tools.JWT;
+import tools.JWT_TOKEN;
 import tools.Separator;
 
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static tools.JWT.createJwt;
+import static tools.JWT_TOKEN.createJwt;
 
 public class RequestTest {
 

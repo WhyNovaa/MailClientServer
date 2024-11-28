@@ -48,7 +48,9 @@ public class ClientMain {
                 }
             }).start();
             sendAuthorization(socket,new CommandAuthorization(auth));
-            //try {sleep(500);} catch (InterruptedException e) {System.err.println(e.getMessage());}
+            while(true) {
+
+            }
 
         } catch (IOException e) {
             System.err.println("Ошибка клиента: " + e.getMessage());
