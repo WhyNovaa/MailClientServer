@@ -118,8 +118,14 @@ class Handler implements Runnable {
         }
     }
 
-    public void handleSendMessage(Message msg) {
-        // TODO
+    public void handleSendMessage(Message msg) throws SQLException {
+        try {
+            addMessage(msg);
+            sendRequest(new RequestSendMessage(true).serializeToStr());
+        } catch (SQLException e) {
+            sendRequest(new RequestSendMessage(false).serializeToStr());
+            throw new RuntimeException(e);
+        }
     }
 
     public void handleGetMessage(CommandGetMessage msg) {
@@ -181,6 +187,8 @@ class Handler implements Runnable {
             }
         } catch (IOException e) {
             System.err.println("Ошибка при общении с клиентом: " + e.getMessage());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         } finally {
             try {
                 socket.close();

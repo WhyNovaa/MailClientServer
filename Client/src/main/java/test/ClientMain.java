@@ -35,7 +35,7 @@ public class ClientMain {
         String login = in.nextLine();
         String password = in.nextLine();
 
-        //Registration reg = new Registration(login,password);
+        Registration reg = new Registration(login,password);
         Authorization auth = new Authorization(login, password);
 
         try (Socket socket = new Socket("localhost", PORT);
@@ -60,8 +60,18 @@ public class ClientMain {
                 }
             }).start();
 
-            //sendRegistration(socket,new CommandRegistration(reg));
-            sendAuthorization(socket,new CommandAuthorization(auth));
+            System.out.println("Input reg to register else anything");
+            if(in.nextLine().equals("reg")){
+                sendRegistration(socket,new CommandRegistration(reg));
+            }
+            else sendAuthorization(socket,new CommandAuthorization(auth));
+
+            System.out.println("input receiver, subject, and the body of the message");
+            String receiver = in.nextLine();
+            String subject = in.nextLine();
+            String body = in.nextLine();
+            Message mes = new Message(subject,login,receiver,body);
+            sendMessage(socket, new CommandSendMessage(mes,jwt_token));
             //try {sleep(500);} catch (InterruptedException e) {System.err.println(e.getMessage());}
 
         } catch (IOException e) {
@@ -91,6 +101,16 @@ public class ClientMain {
         }
     }
 
+    static void sendMessage(Socket socket, CommandSendMessage message) {
+        try {
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            writer.write(message.serializeToStr() + "\n"); // Добавляем перенос строки
+            writer.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     static void HandleRequest(String message) throws Exception {
         Request req = Request.deserializeFromStr(message);
 
@@ -100,6 +120,7 @@ public class ClientMain {
                 if (authRequest.isAuthorized()){
                     System.out.println("Authorized successfully\n");
                     jwt_token = authRequest.getJwt_token();
+                    System.out.println(jwt_token);
                 }
                 else System.out.println("Incorrect login or password\n");
             }
