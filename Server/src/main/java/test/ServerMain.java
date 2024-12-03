@@ -179,14 +179,14 @@ class Handler implements Runnable {
                     }
                     case CommandType.GET_MESSAGE -> {
 
-                        //if(checkJWT(command.getJwtToken())) {//эта проверка не проходит но должна выпиливаю
+                        if(checkJWT(command.getJwtToken())) {
                             handleGetMessage((CommandGetMessage) command);
 
-                        //}
-                        /*else {
+                        }
+                        else {
                             System.out.println("wrong jwt");
                             sendRequest(new RequestGetMessage(new ArrayList<Message>()).serializeToStr());
-                        }*/
+                        }
                     }
                 }
             }
