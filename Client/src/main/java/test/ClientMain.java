@@ -9,10 +9,7 @@ import java.util.Scanner;
 import command_models.Authorization;
 import command_models.Message;
 import command_models.Registration;
-import commands.CommandAuthorization;
-import commands.CommandRegistration;
-import commands.CommandSendMessage;
-import commands.CommandType;
+import commands.*;
 import io.github.cdimascio.dotenv.Dotenv;
 import requests.*;
 import requests.RequestType;
@@ -29,7 +26,7 @@ public class ClientMain {
         Dotenv dotenv = Dotenv.load();
         PORT = Integer.parseInt(Objects.requireNonNull(dotenv.get("PORT")));
 
-        System.out.println("Input login then password to register");
+        System.out.println("Input login then password to register or authorize");
 
         Scanner in = new Scanner(System.in);
         String login = in.nextLine();
@@ -66,12 +63,29 @@ public class ClientMain {
             }
             else sendAuthorization(socket,new CommandAuthorization(auth));
 
-            System.out.println("input receiver, subject, and the body of the message");
-            String receiver = in.nextLine();
-            String subject = in.nextLine();
-            String body = in.nextLine();
-            Message mes = new Message(subject,login,receiver,body);
-            sendMessage(socket, new CommandSendMessage(mes,jwt_token));
+            System.out.println("Input write to write message, get to read ur messages");
+            String answer = in.nextLine();
+            while(!answer.equals("exit")) {
+
+                while (!answer.equals("write") && !answer.equals("get")) {
+                    System.out.println("wrong input");
+                }
+
+                if(answer.equals("write")) {
+                    System.out.println("input receiver, subject, and the body of the message");
+                    String receiver = in.nextLine();
+                    String subject = in.nextLine();
+                    String body = in.nextLine();
+                    Message mes = new Message(subject, login, receiver, body);
+                    sendMessage(socket, new CommandSendMessage(mes, jwt_token));
+                }
+
+                if (answer.equals("get") ) {
+                    sendMessagesCheck(socket, new CommandGetMessage(jwt_token));
+                }
+                System.out.println("Input write to write message, get to read ur messages, exit to exit");
+                answer = in.nextLine();
+            }
             //try {sleep(500);} catch (InterruptedException e) {System.err.println(e.getMessage());}
 
         } catch (IOException e) {
@@ -102,6 +116,16 @@ public class ClientMain {
     }
 
     static void sendMessage(Socket socket, CommandSendMessage message) {
+        try {
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            writer.write(message.serializeToStr() + "\n"); // Добавляем перенос строки
+            writer.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    static void sendMessagesCheck(Socket socket, CommandGetMessage message){
         try {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             writer.write(message.serializeToStr() + "\n"); // Добавляем перенос строки
@@ -142,7 +166,10 @@ public class ClientMain {
                 ArrayList<Message> mes = ((RequestGetMessage) req).getMessages();
                 if (mes.size() == 0) System.out.println("No new messages for you right now\n");
                 for (int i = 0; i<mes.size();i++){
-                    System.out.println(mes.get(i).serializeToStr());
+                    Message ur_message = mes.get(i);
+                    System.out.println("from: " + ur_message.getFrom());
+                    System.out.println("subject: " + ur_message.getSubject());
+                    System.out.println("text: " + ur_message.getBody());
                 }
             }
         }

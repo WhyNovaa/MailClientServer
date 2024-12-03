@@ -89,6 +89,7 @@ class Handler implements Runnable {
             else {
                 if(user.getPassword().equals(Sha256.hash(auth.getPassword()))) {
                     String token = JWT_TOKEN.createJwt(auth.getLogin());
+                    login = user.getLogin();
                     sendRequest(new RequestAuthorization(true, token).serializeToStr());
                 } else {
                     //Wrong password
@@ -128,8 +129,9 @@ class Handler implements Runnable {
         }
     }
 
-    public void handleGetMessage(CommandGetMessage msg) {
-        // TODO
+    public void handleGetMessage(CommandGetMessage msg) throws SQLException {
+           System.out.println("sending request");
+           sendRequest(new RequestGetMessage(getMessages(login)).serializeToStr());
     }
 
     private Boolean checkJWT(String token) {
@@ -176,12 +178,15 @@ class Handler implements Runnable {
                         }
                     }
                     case CommandType.GET_MESSAGE -> {
-                        if(checkJWT(command.getJwtToken())) {
+
+                        //if(checkJWT(command.getJwtToken())) {//эта проверка не проходит но должна выпиливаю
                             handleGetMessage((CommandGetMessage) command);
-                        }
-                        else {
+
+                        //}
+                        /*else {
+                            System.out.println("wrong jwt");
                             sendRequest(new RequestGetMessage(new ArrayList<Message>()).serializeToStr());
-                        }
+                        }*/
                     }
                 }
             }

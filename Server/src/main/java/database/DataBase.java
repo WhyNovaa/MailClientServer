@@ -1,6 +1,7 @@
 package database;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Objects;
 
 import command_models.Message;
@@ -124,6 +125,34 @@ public class DataBase {
         }
         else {
             System.out.println("Message from "+mess.getFrom()+" to "+mess.getTo()+" wasn't sent because of database errors");
+        }
+    }
+
+    public static ArrayList<Message> getMessages(String login) throws SQLException {
+        System.out.println("getting messages from db");
+        int receiver_id = getId(login);
+        System.out.println("hini's id " + Integer.toString(receiver_id));
+        String req = "SELECT * FROM messages WHERE receiver_id = ?";
+
+        PreparedStatement preparedStatement = con.prepareStatement(req);
+        preparedStatement.setInt(1, receiver_id);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        ArrayList<Message> messages = new ArrayList<>();
+        while (rs.next()) {
+
+            int sender_id = rs.getInt("sender_id");
+            String from = "id - " + sender_id;
+
+            String subject = rs.getString("subject");
+            String body = rs.getString("body");
+
+            messages.add(new Message(subject, from, login, body));
+        }
+        if (messages.size()>0) return messages;
+        else {
+            System.out.println("No messages for u");
+            return null;
         }
     }
 }
