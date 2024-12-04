@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import command_models.Authorization;
-import command_models.FileWrapper;
+import command_models.MessageFileWrapper;
 import command_models.Message;
 import command_models.Registration;
 import commands.*;
@@ -39,7 +39,7 @@ public class ServerMain {
                 new Thread(new Handler(socket)).start();
             }
         } catch (IOException e) {
-            System.err.println("Ошибка при работе сервера" + e);
+            System.err.println("Server Error" + e);
         }
     }
 }
@@ -127,7 +127,7 @@ class Handler implements Runnable {
         }
     }
 
-    public void handleSendFile(FileWrapper file) throws SQLException {
+    public void handleSendFile(MessageFileWrapper file) throws SQLException {
         try {
             addFile(file);
             sendRequest(new RequestSendMessage(true).serializeToStr());
@@ -151,21 +151,18 @@ class Handler implements Runnable {
     public void run() {
         try (
                 InputStream input = socket.getInputStream();
-                //OutputStream output = socket.getOutputStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(input));
         ) {
-            //writer.println("Добро пожаловать на сервер!");
             String message;
 
             while ((message = reader.readLine()) != null) {
 
                 if (message.equalsIgnoreCase("exit")) {
-                    sendRequest("Прощайте!");
+                    sendRequest("Bye!");
                     break;
                 }
 
                 System.out.println(message);
-                //writer.println("Сервер получил: " + message);
 
                 Command command = Command.deserializeFromStr(message);
 
@@ -188,7 +185,7 @@ class Handler implements Runnable {
                     }
                     case CommandType.SEND_FILE -> {
                         if(checkJWT(command.getJwtToken())) {
-                            FileWrapper file = ((CommandSendFile) command).getFile();
+                            MessageFileWrapper file = ((CommandSendFile) command).getFile();
                             handleSendFile(file);
                         } else {
                             sendRequest(new RequestSendMessage(false).serializeToStr());
@@ -196,7 +193,7 @@ class Handler implements Runnable {
                     }
                     case CommandType.GET_MESSAGE -> {
                         if(checkJWT(command.getJwtToken())) {
-                            handleGetMessage((CommandGetMessage) command);//внутри handleGetMessage лежит также получение файлов
+                            handleGetMessage((CommandGetMessage) command);// handleGetMessage gets both messages and files
 
                         }
                         else {
@@ -207,14 +204,14 @@ class Handler implements Runnable {
                 }
             }
         } catch (IOException e) {
-            System.err.println("Ошибка при общении с клиентом: " + e.getMessage());
+            System.err.println("Error in connection with client: " + e.getMessage());
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
             try {
                 socket.close();
             } catch (IOException e) {
-                System.err.println("Ошибка при закрытии соединения: " + e.getMessage());
+                System.err.println("Error while closing connection: " + e.getMessage());
             }
         }
     }

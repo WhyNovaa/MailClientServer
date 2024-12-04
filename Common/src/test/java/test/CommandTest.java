@@ -1,7 +1,7 @@
 package test;
 
 import command_models.Authorization;
-import command_models.FileWrapper;
+import command_models.MessageFileWrapper;
 import command_models.Message;
 import command_models.Registration;
 import commands.*;
@@ -44,7 +44,7 @@ public class CommandTest {
 
     @Test
     public void isValidCommandSendFileSerialization() {
-        FileWrapper file = new FileWrapper("subject", "from", "to", "body");
+        MessageFileWrapper file = new MessageFileWrapper("subject", "from", "to", "body");
         CommandSendFile commandSendMessage = new CommandSendFile(file, "JWT");
         String expected = "SEND_FILE" + Separator.SEPARATOR + "subject" + Separator.SEPARATOR + "from" + Separator.SEPARATOR + "to" + Separator.SEPARATOR + "body" + Separator.SEPARATOR + "JWT";
         assertEquals(expected, commandSendMessage.serializeToStr());
@@ -98,7 +98,7 @@ public class CommandTest {
     @Test
     public void isValidCommandDeserializationToCommandSendFile() {
         //CommandSendFile
-        FileWrapper file = new FileWrapper("subject", "from", "to", "body");
+        MessageFileWrapper file = new MessageFileWrapper("subject", "from", "to", "body");
         CommandSendFile expected = new CommandSendFile(file, "JWT");
 
         String serializedCommand = expected.serializeToStr();

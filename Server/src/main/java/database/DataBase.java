@@ -2,9 +2,8 @@ package database;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Objects;
 
-import command_models.FileWrapper;
+import command_models.MessageFileWrapper;
 import command_models.Message;
 import command_models.Registration;
 import models.User;
@@ -13,13 +12,14 @@ import tools.Sha256;
 
 public class DataBase {
     private static Connection con;
+
     public static void connectToDataBase() throws SQLException {
 
         String URL = Env.getURL();
         String USERNAME = Env.getUsername();
         String PASSWORD = Env.getPassword();
         try {
-            con = DriverManager.getConnection(URL,USERNAME,PASSWORD );
+            con = DriverManager.getConnection(URL, USERNAME, PASSWORD);
             String req = "CREATE TABLE IF NOT EXISTS `USERS` (" +
                     "    `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY," +
                     "    `NAME` varchar(30)," +
@@ -50,9 +50,9 @@ public class DataBase {
 
             Statement state = con.createStatement();
             state.execute(fileTableReq);
-           state.execute(messageTableReq);
-           state.execute(req);
-           state.close();
+            state.execute(messageTableReq);
+            state.execute(req);
+            state.close();
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -74,8 +74,7 @@ public class DataBase {
 
         if (amount > 0) {
             System.out.println("User added: " + login);
-        }
-        else {
+        } else {
             System.out.println("User not found.");
         }
     }
@@ -90,35 +89,33 @@ public class DataBase {
 
         ResultSet rs = preparedStatement.executeQuery();
 
-        if(rs.next()) {
+        if (rs.next()) {
             return new User(rs.getString("name"), rs.getString("hashed_password"));
-        }
-        else {
+        } else {
             return null;
         }
     }
 
     public static int getId(String login) throws SQLException {
-        String req =  "SELECT id FROM USERS WHERE NAME = ?";
+        String req = "SELECT id FROM USERS WHERE NAME = ?";
         PreparedStatement preparedStatement = con.prepareStatement(req);
 
         preparedStatement.setString(1, login);
 
         ResultSet rs = preparedStatement.executeQuery();
 
-        if(rs.next()) {
+        if (rs.next()) {
             return rs.getInt("id");
-        }
-        else {
+        } else {
             return -1;
         }
     }
 
-    public static void addMessage(Message mess) throws SQLException{
+    public static void addMessage(Message mess) throws SQLException {
         int from = getId(mess.getFrom());
         int to = getId(mess.getTo());
-        if (to == -1){
-            System.out.println("Message from "+mess.getFrom()+" to "+mess.getTo()+" wasn't sent because receiver doen't exists");
+        if (to == -1) {
+            System.out.println("Message from " + mess.getFrom() + " to " + mess.getTo() + " wasn't sent because receiver doen't exists");
         }
         String subject = mess.getSubject();
         String body = mess.getBody();
@@ -128,17 +125,25 @@ public class DataBase {
 
         preparedStatement.setInt(1, from);
         preparedStatement.setInt(2, to);
-        preparedStatement.setString(3,subject);
-        preparedStatement.setString(4,body);
+        preparedStatement.setString(3, subject);
+        preparedStatement.setString(4, body);
 
         int amount = preparedStatement.executeUpdate();
 
         if (amount > 0) {
-            System.out.println("Message from "+mess.getFrom()+" to "+mess.getTo()+" was sent");
+            System.out.println("Message from " + mess.getFrom() + " to " + mess.getTo() + " was sent");
+        } else {
+            System.out.println("Message from " + mess.getFrom() + " to " + mess.getTo() + " wasn't sent because of database errors");
         }
-        else {
-            System.out.println("Message from "+mess.getFrom()+" to "+mess.getTo()+" wasn't sent because of database errors");
-        }
+    }
+
+    public static String getName(int id) throws SQLException {
+        String req = "SELECT NAME FROM USERS WHERE id = ?";
+        PreparedStatement preparedStatement = con.prepareStatement(req);
+        preparedStatement.setInt(1,id);
+        ResultSet rs = preparedStatement.executeQuery();
+        rs.next();
+        return rs.getString(1);
     }
 
     public static ArrayList<Message> getMessages(String login) throws SQLException {
@@ -155,23 +160,23 @@ public class DataBase {
         while (rs.next()) {
 
             int sender_id = rs.getInt("sender_id");
-            String from = "id - " + sender_id;
+            String from = getName(sender_id);
 
             String subject = rs.getString("subject");
             String body = rs.getString("body");
 
             messages.add(new Message(subject, from, login, body));
         }
-        if (messages.size()>0) return messages;
+        if (messages.size() > 0) return messages;
         else {
-            System.out.println("No messages for u");
+            System.out.println("No messages for you");
             return null;
         }
     }
 
-    public static void addFile(FileWrapper fileWrapper) throws SQLException {
-        String fromUser = fileWrapper.getFrom();
-        String toUser = fileWrapper.getTo();
+    public static void addFile(MessageFileWrapper messageFileWrapper) throws SQLException {
+        String fromUser = messageFileWrapper.getFrom();
+        String toUser = messageFileWrapper.getTo();
         int from = getId(fromUser);
         int to = getId(toUser);
         if (to == -1) {
@@ -179,8 +184,8 @@ public class DataBase {
             return;
         }
 
-        String fileName = fileWrapper.getFileName();
-        String fileContent = fileWrapper.getFileContent();
+        String fileName = messageFileWrapper.getFileName();
+        String fileContent = messageFileWrapper.getFileContent();
         String req = "INSERT INTO files(sender_id, receiver_id, file_name, file_content) VALUES (?, ?, ?, ?);";
         PreparedStatement preparedStatement = con.prepareStatement(req);
 
@@ -197,7 +202,7 @@ public class DataBase {
         }
     }
 
-    public static ArrayList<FileWrapper> getFiles(String login) throws SQLException {
+    public static ArrayList<MessageFileWrapper> getFiles(String login) throws SQLException {
         System.out.println("Getting files from database");
         int receiver_id = getId(login);
         System.out.println("Receiver's ID: " + receiver_id);
@@ -207,13 +212,13 @@ public class DataBase {
         preparedStatement.setInt(1, receiver_id);
         ResultSet rs = preparedStatement.executeQuery();
 
-        ArrayList<FileWrapper> files = new ArrayList<>();
+        ArrayList<MessageFileWrapper> files = new ArrayList<>();
         while (rs.next()) {
             int sender_id = rs.getInt("sender_id");
-            String from = "id - " + sender_id;
+            String from = getName(sender_id);
             String fileName = rs.getString("file_name");
             String fileContent = rs.getString("file_content");
-            files.add(new FileWrapper(fileName, from, login,fileContent));
+            files.add(new MessageFileWrapper(fileName, from, login, fileContent));
         }
 
         if (files.size() > 0) {

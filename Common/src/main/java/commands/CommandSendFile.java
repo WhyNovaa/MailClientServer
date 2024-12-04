@@ -1,16 +1,15 @@
 package commands;
 
-import command_models.FileWrapper;
-import command_models.Message;
+import command_models.MessageFileWrapper;
 import tools.Separator;
 
 import java.util.Objects;
 
 public class CommandSendFile extends Command {
 
-    private FileWrapper file;
+    private MessageFileWrapper file;
 
-    public CommandSendFile(FileWrapper file, String jwt_token) {
+    public CommandSendFile(MessageFileWrapper file, String jwt_token) {
         super(CommandType.SEND_FILE, jwt_token);
         this.file = file;
     }
@@ -31,7 +30,7 @@ public class CommandSendFile extends Command {
         return this.getType().toString() + Separator.SEPARATOR + file.serializeToStr() + Separator.SEPARATOR + getJwtToken();
     }
 
-    public FileWrapper getFile() {
+    public MessageFileWrapper getFile() {
         return file;
     }
 }

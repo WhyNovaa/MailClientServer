@@ -1,6 +1,6 @@
 package requests;
 
-import command_models.FileWrapper;
+import command_models.MessageFileWrapper;
 import tools.Separator;
 
 
@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class RequestGetFile extends Request {
-    private ArrayList<FileWrapper> files;
+    private ArrayList<MessageFileWrapper> files;
 
-    public RequestGetFile(ArrayList<FileWrapper> files) {
+    public RequestGetFile(ArrayList<MessageFileWrapper> files) {
         super(RequestType.GET_FILE);
         this.files = files;
     }
@@ -35,7 +35,7 @@ public class RequestGetFile extends Request {
         return str;
     }
 
-    public ArrayList<FileWrapper> getFiles() {
+    public ArrayList<MessageFileWrapper> getFiles() {
         return files;
     }
 }

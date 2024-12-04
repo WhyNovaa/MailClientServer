@@ -1,10 +1,7 @@
 package requests;
 
-import command_models.Authorization;
-import command_models.FileWrapper;
+import command_models.MessageFileWrapper;
 import command_models.Message;
-import command_models.Registration;
-import commands.*;
 import tools.Separator;
 
 import java.util.ArrayList;
@@ -57,13 +54,13 @@ public abstract class Request {
                 yield new RequestGetMessage(messages);
             }
             case "GET_FILE" -> {
-                ArrayList<FileWrapper> files = new ArrayList<>();
+                ArrayList<MessageFileWrapper> files = new ArrayList<>();
                 for (int i = 1; i < args.length; i += 4) {
                     String filename = (i < args.length) ? args[i] : "";
                     String from = (i + 1 < args.length) ? args[i + 1] : "";
                     String to = (i + 2 < args.length) ? args[i + 2] : "";
                     String fileContent = (i + 3 < args.length) ? args[i + 3] : "";
-                    files.add(new FileWrapper(filename, from, to, fileContent));
+                    files.add(new MessageFileWrapper(filename, from, to, fileContent));
                 }
                 yield new RequestGetFile(files);
             }

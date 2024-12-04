@@ -1,6 +1,6 @@
 package test;
 
-import command_models.FileWrapper;
+import command_models.MessageFileWrapper;
 import command_models.Message;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,7 +31,7 @@ public class CommandModelTest {
 
     @Test
     public void isValidFileSerialization() {
-        FileWrapper file = new FileWrapper("subject", "from", "to", "body");
+        MessageFileWrapper file = new MessageFileWrapper("subject", "from", "to", "body");
         String expected = "subject" + Separator.SEPARATOR + "from" + Separator.SEPARATOR + "to" + Separator.SEPARATOR + "body";
         assertEquals(expected, file.serializeToStr());
     }

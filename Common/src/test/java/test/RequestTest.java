@@ -1,18 +1,16 @@
 package test;
 
-import command_models.FileWrapper;
+import command_models.MessageFileWrapper;
 import command_models.Message;
-import commands.Command;
-import commands.CommandSendMessage;
 import org.junit.jupiter.api.Test;
 import requests.Request;
 import requests.*;
-import tools.JWT_TOKEN;
 import tools.Separator;
 
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static tools.JWT_TOKEN.createJwt;
 
 public class RequestTest {
@@ -37,7 +35,7 @@ public class RequestTest {
             RequestAuthorization req = (RequestAuthorization) Request.deserializeFromStr(serializedRequest);
             assertEquals(expectedTrue, req);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            fail();
         }
 
 
@@ -47,7 +45,7 @@ public class RequestTest {
             RequestAuthorization req = (RequestAuthorization) Request.deserializeFromStr(serializedRequest2);
             assertEquals(expectedFalse, req);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            fail();
         }
     }
 
@@ -70,7 +68,7 @@ public class RequestTest {
             RequestRegistration req = (RequestRegistration) Request.deserializeFromStr(serializedRequest);
             assertEquals(expectedTrue, req);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            fail();
         }
 
 
@@ -80,7 +78,7 @@ public class RequestTest {
             RequestRegistration req = (RequestRegistration) Request.deserializeFromStr(serializedRequest2);
             assertEquals(expectedFalse, req);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            fail();
         }
     }
 
@@ -103,7 +101,7 @@ public class RequestTest {
             RequestSendMessage req = (RequestSendMessage) Request.deserializeFromStr(serializedRequest);
             assertEquals(expectedTrue, req);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            fail();
         }
 
         RequestSendMessage expectedFalse = new RequestSendMessage(false);
@@ -112,7 +110,7 @@ public class RequestTest {
             RequestSendMessage req = (RequestSendMessage) Request.deserializeFromStr(serializedRequest2);
             assertEquals(expectedFalse, req);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            fail();
         }
     }
 
@@ -147,16 +145,16 @@ public class RequestTest {
         try {
             com = (RequestGetMessage) Request.deserializeFromStr(serializedRequest);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            fail();
         }
         assertEquals(expected, com);
     }
 
     @Test
     public void isValidRequestGetFileSerialization() {
-        FileWrapper mes1 = new FileWrapper("subject", "from", "to", "body");
-        FileWrapper mes2 = new FileWrapper("theme", "admin", "user", "message");
-        ArrayList<FileWrapper> files = new ArrayList<FileWrapper>(2);
+        MessageFileWrapper mes1 = new MessageFileWrapper("subject", "from", "to", "body");
+        MessageFileWrapper mes2 = new MessageFileWrapper("theme", "admin", "user", "message");
+        ArrayList<MessageFileWrapper> files = new ArrayList<MessageFileWrapper>(2);
         files.add(mes1);
         files.add(mes2);
 
@@ -165,13 +163,14 @@ public class RequestTest {
                 "from" + Separator.SEPARATOR + "to" + Separator.SEPARATOR + "body" + Separator.SEPARATOR
                 + "theme" + Separator.SEPARATOR +"admin" + Separator.SEPARATOR + "user" +Separator.SEPARATOR+ "message";
         assertEquals(expected, reqtrue.serializeToStr());
+        assertEquals(2, reqtrue.getFiles().size());
     }
 
     @Test
     public void isValidCommandDeserializationToRequestGetFile() throws Exception {
-        FileWrapper mes1 = new FileWrapper("subject", "from", "to", "body");
-        FileWrapper mes2 = new FileWrapper("theme", "admin", "user", "message");
-        ArrayList<FileWrapper> files = new ArrayList<FileWrapper>(2);
+        MessageFileWrapper mes1 = new MessageFileWrapper("subject", "from", "to", "body");
+        MessageFileWrapper mes2 = new MessageFileWrapper("theme", "admin", "user", "message");
+        ArrayList<MessageFileWrapper> files = new ArrayList<MessageFileWrapper>(2);
         files.add(mes1);
         files.add(mes2);
 
@@ -183,7 +182,7 @@ public class RequestTest {
         try {
             com = (RequestGetFile) Request.deserializeFromStr(serializedRequest);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            fail();
         }
         assertEquals(expected, com);
     }

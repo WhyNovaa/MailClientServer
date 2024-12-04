@@ -1,32 +1,33 @@
 package test;
 
+import command_models.Authorization;
+import command_models.MessageFileWrapper;
+import command_models.Message;
+import command_models.Registration;
+import commands.*;
+import io.github.cdimascio.dotenv.Dotenv;
+import requests.*;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Scanner;
 
-import command_models.Authorization;
-import command_models.FileWrapper;
-import command_models.Message;
-import command_models.Registration;
-import commands.*;
-import io.github.cdimascio.dotenv.Dotenv;
-import requests.*;
-import requests.RequestType;
-
-import static java.lang.Thread.sleep;
-import static test.FileUtil.*;
+import static test.FileUtil.decodeBase64ToFile;
+import static test.FileUtil.encodeFileToBase64;
 
 
 public class ClientMain {
 
     private static int PORT;
     private static String jwt_token;
+    private static String DIRECTORY;
 
     public static void main(String[] args) {
         Dotenv dotenv = Dotenv.load();
         PORT = Integer.parseInt(Objects.requireNonNull(dotenv.get("PORT")));
+        DIRECTORY = Objects.requireNonNull(dotenv.get("DIRECTORY"));
 
         System.out.println("Input login then password to register or authorize");
 
@@ -39,11 +40,8 @@ public class ClientMain {
 
         try (Socket socket = new Socket("localhost", PORT);
              BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                /*PrintWriter writer = new PrintWriter(socket.getOutputStream(), true)*/) {
+                ) {
 
-            //Scanner scanner = new Scanner(System.in);
-
-            // Поток для чтения сообщений от сервера
             new Thread(() -> {
                 try {
                     String serverMessage;
@@ -66,7 +64,7 @@ public class ClientMain {
 
             System.out.println("Input write to write message, get to read ur messages");
             String answer = in.nextLine();
-            while (!answer.equals("exit")) {
+            while (!answer.equals("exit") && jwt_token!=null) {
 
                 switch (answer) {
 
@@ -87,30 +85,31 @@ public class ClientMain {
                         System.out.println("input receiver and path to file");
                         String receiver = in.nextLine();
                         String path = in.nextLine();
-                        FileWrapper file = encodeFileToBase64(path,login,receiver);
+                        MessageFileWrapper file = encodeFileToBase64(path, login, receiver);
                         sendFile(socket, new CommandSendFile(file, jwt_token));
                     }
 
-                    default ->{ System.out.println("wrong input"); }
+                    default -> {
+                        System.out.println("wrong input");
+                    }
                 }
 
-                    System.out.println("Input write to write message, get to read ur messages, exit to exit");
-                    answer = in.nextLine();
-                }
-                //try {sleep(500);} catch (InterruptedException e) {System.err.println(e.getMessage());}
-
-            } catch(IOException e){
-                System.err.println("Ошибка клиента: " + e.getMessage());
+                System.out.println("Input write to write message, get to read ur messages, exit to exit");
+                answer = in.nextLine();
             }
 
-
+        } catch (IOException e) {
+            System.err.println("Ошибка клиента: " + e.getMessage());
         }
+
+
+    }
 
 
     static void sendAuthorization(Socket socket, CommandAuthorization auth) {
         try {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            writer.write(auth.serializeToStr() + "\n"); // Добавляем перенос строки
+            writer.write(auth.serializeToStr() + "\n");
             writer.flush();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -120,7 +119,7 @@ public class ClientMain {
     static void sendRegistration(Socket socket, CommandRegistration reg) {
         try {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            writer.write(reg.serializeToStr() + "\n"); // Добавляем перенос строки
+            writer.write(reg.serializeToStr() + "\n");
             writer.flush();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -130,7 +129,7 @@ public class ClientMain {
     static void sendMessage(Socket socket, CommandSendMessage message) {
         try {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            writer.write(message.serializeToStr() + "\n"); // Добавляем перенос строки
+            writer.write(message.serializeToStr() + "\n");
             writer.flush();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -140,17 +139,17 @@ public class ClientMain {
     static void sendFile(Socket socket, CommandSendFile file) {
         try {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            writer.write(file.serializeToStr() + "\n"); // Добавляем перенос строки
+            writer.write(file.serializeToStr() + "\n");
             writer.flush();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    static void sendMessagesCheck(Socket socket, CommandGetMessage message){
+    static void sendMessagesCheck(Socket socket, CommandGetMessage message) {
         try {
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            writer.write(message.serializeToStr() + "\n"); // Добавляем перенос строки
+            writer.write(message.serializeToStr() + "\n");
             writer.flush();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -160,49 +159,42 @@ public class ClientMain {
     static void HandleRequest(String message) throws Exception {
         Request req = Request.deserializeFromStr(message);
 
-        switch(req.getType()) {
+        switch (req.getType()) {
             case RequestType.LOGIN -> {
                 RequestAuthorization authRequest = (RequestAuthorization) req;
-                if (authRequest.isAuthorized()){
-                    System.out.println("Authorized successfully\n");
+                if (authRequest.isAuthorized()) {
+                    System.out.println("Authorized successfully");
                     jwt_token = authRequest.getJwt_token();
-                    System.out.println(jwt_token);
-                }
-                else System.out.println("Incorrect login or password\n");
+                    //System.out.println(jwt_token);
+                } else System.out.println("Incorrect login or password\n");
             }
             case RequestType.REGISTER -> {
                 RequestRegistration regRequest = (RequestRegistration) req;
-                if (regRequest.isRegistered()){
+                if (regRequest.isRegistered()) {
                     System.out.println("Registered successfully\n");
-                }
-                else System.out.println("Login already exists\n");
+                } else System.out.println("Login already exists\n");
             }
             case RequestType.SEND_MESSAGE -> {
                 RequestSendMessage sendRequest = (RequestSendMessage) req;
-                if (sendRequest.isSent()){
+                if (sendRequest.isSent()) {
                     System.out.println("Your message had been sent\n");
-                }
-                else System.out.println("Your message hadn't been sent, user with this nickname probably dont exists\n");
+                } else
+                    System.out.println("Your message hadn't been sent, user with this nickname probably doesn`t exist\n");
             }
             case RequestType.GET_MESSAGE -> {
                 ArrayList<Message> mes = ((RequestGetMessage) req).getMessages();
-                if (mes.size() == 0) System.out.println("No new messages for you right now");
-                for (int i = 0; i<mes.size();i++){
-                    Message ur_message = mes.get(i);
+                if (mes.isEmpty()) System.out.println("No new messages for you right now");
+                for (Message ur_message : mes) {
                     System.out.println("from: " + ur_message.getFrom());
                     System.out.println("subject: " + ur_message.getSubject());
                     System.out.println("text: " + ur_message.getBody());
                 }
             }
             case RequestType.GET_FILE -> {
-                ArrayList<FileWrapper> files = ((RequestGetFile) req).getFiles();
-                if (files.size() == 0) System.out.println("No new files for you right now");
-                for (int i = 0; i<files.size();i++){
-                    FileWrapper file = files.get(i);
-                    decodeBase64ToFile(file,"C:\\Projects\\Java\\mail server\\MailClientServer\\Client\\misha_files");
-//                    System.out.println("from: " + ur_message.getFrom());
-//                    System.out.println("subject: " + ur_message.getSubject());
-//                    System.out.println("text: " + ur_message.getBody());
+                ArrayList<MessageFileWrapper> files = ((RequestGetFile) req).getFiles();
+                if (files.isEmpty()) System.out.println("No new files for you right now");
+                for (MessageFileWrapper file : files) {
+                    decodeBase64ToFile(file, DIRECTORY);
                 }
             }
         }

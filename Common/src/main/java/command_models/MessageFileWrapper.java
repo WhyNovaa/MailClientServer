@@ -2,13 +2,13 @@ package command_models;
 
 import tools.Separator;
 
-public class FileWrapper {
+public class MessageFileWrapper {
     private String from;
     private String to;
     private String fileName;
     private String fileContent;
 
-    public FileWrapper(String fileName,String from, String to, String fileContent) {
+    public MessageFileWrapper(String fileName, String from, String to, String fileContent) {
         this.fileName = fileName;
         this.fileContent = fileContent;
         this.to = to;
@@ -42,16 +42,16 @@ public class FileWrapper {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        FileWrapper file = (FileWrapper) o;
+        MessageFileWrapper file = (MessageFileWrapper) o;
 
         return this.fileName.equals(file.fileName) && this.fileContent.equals(file.fileContent)
                 && this.from.equals(file.from)
                 && this.to.equals(file.to);
     }
 
-    public static FileWrapper deserializeFromStr(String str){
+    public static MessageFileWrapper deserializeFromStr(String str){
         String[] arr = str.split(Separator.SEPARATOR);
-        return new FileWrapper(arr[0],arr[1],arr[2],arr[3]);
+        return new MessageFileWrapper(arr[0],arr[1],arr[2],arr[3]);
     }
 
     public String serializeToStr() {
