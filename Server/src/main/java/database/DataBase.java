@@ -4,6 +4,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import command_models.FileWrapper;
 import command_models.Message;
 import command_models.Registration;
 import models.User;
@@ -35,8 +36,20 @@ public class DataBase {
                             "    FOREIGN KEY (sender_id) REFERENCES users(id)," +
                             "    FOREIGN KEY (receiver_id) REFERENCES users(id)" +
                             ");";
+            String fileTableReq =
+                    "CREATE TABLE IF NOT EXISTS files (" +
+                            "    id INT AUTO_INCREMENT PRIMARY KEY," +
+                            "    sender_id INT NOT NULL," +
+                            "    receiver_id INT NOT NULL," +
+                            "    file_name VARCHAR(255)," +
+                            "    file_content TEXT," +
+                            "    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                            "    FOREIGN KEY (sender_id) REFERENCES users(id)," +
+                            "    FOREIGN KEY (receiver_id) REFERENCES users(id)" +
+                            ");";
 
             Statement state = con.createStatement();
+            state.execute(fileTableReq);
            state.execute(messageTableReq);
            state.execute(req);
            state.close();
@@ -131,7 +144,7 @@ public class DataBase {
     public static ArrayList<Message> getMessages(String login) throws SQLException {
         System.out.println("getting messages from db");
         int receiver_id = getId(login);
-        System.out.println("hini's id " + Integer.toString(receiver_id));
+        System.out.println("sender's id " + Integer.toString(receiver_id));
         String req = "SELECT * FROM messages WHERE receiver_id = ?";
 
         PreparedStatement preparedStatement = con.prepareStatement(req);
@@ -152,6 +165,61 @@ public class DataBase {
         if (messages.size()>0) return messages;
         else {
             System.out.println("No messages for u");
+            return null;
+        }
+    }
+
+    public static void addFile(FileWrapper fileWrapper) throws SQLException {
+        String fromUser = fileWrapper.getFrom();
+        String toUser = fileWrapper.getTo();
+        int from = getId(fromUser);
+        int to = getId(toUser);
+        if (to == -1) {
+            System.out.println("File from " + fromUser + " to " + toUser + " wasn't sent because receiver doesn't exist");
+            return;
+        }
+
+        String fileName = fileWrapper.getFileName();
+        String fileContent = fileWrapper.getFileContent();
+        String req = "INSERT INTO files(sender_id, receiver_id, file_name, file_content) VALUES (?, ?, ?, ?);";
+        PreparedStatement preparedStatement = con.prepareStatement(req);
+
+        preparedStatement.setInt(1, from);
+        preparedStatement.setInt(2, to);
+        preparedStatement.setString(3, fileName);
+        preparedStatement.setString(4, fileContent);
+
+        int amount = preparedStatement.executeUpdate();
+        if (amount > 0) {
+            System.out.println("File from " + fromUser + " to " + toUser + " was sent");
+        } else {
+            System.out.println("File from " + fromUser + " to " + toUser + " wasn't sent because of database errors");
+        }
+    }
+
+    public static ArrayList<FileWrapper> getFiles(String login) throws SQLException {
+        System.out.println("Getting files from database");
+        int receiver_id = getId(login);
+        System.out.println("Receiver's ID: " + receiver_id);
+
+        String req = "SELECT * FROM files WHERE receiver_id = ?";
+        PreparedStatement preparedStatement = con.prepareStatement(req);
+        preparedStatement.setInt(1, receiver_id);
+        ResultSet rs = preparedStatement.executeQuery();
+
+        ArrayList<FileWrapper> files = new ArrayList<>();
+        while (rs.next()) {
+            int sender_id = rs.getInt("sender_id");
+            String from = "id - " + sender_id;
+            String fileName = rs.getString("file_name");
+            String fileContent = rs.getString("file_content");
+            files.add(new FileWrapper(fileName, from, login,fileContent));
+        }
+
+        if (files.size() > 0) {
+            return files;
+        } else {
+            System.out.println("No files for you");
             return null;
         }
     }

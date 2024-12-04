@@ -1,8 +1,6 @@
 package requests;
 
 import command_models.Message;
-import commands.CommandSendMessage;
-import commands.CommandType;
 import tools.Separator;
 
 import java.util.ArrayList;

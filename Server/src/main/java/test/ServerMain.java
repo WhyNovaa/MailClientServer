@@ -7,14 +7,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import command_models.Authorization;
+import command_models.FileWrapper;
 import command_models.Message;
 import command_models.Registration;
 import commands.*;
 import models.User;
-import requests.RequestAuthorization;
-import requests.RequestGetMessage;
-import requests.RequestRegistration;
-import requests.RequestSendMessage;
+import requests.*;
 import tools.Env;
 import tools.JWT_TOKEN;
 import tools.Sha256;
@@ -129,9 +127,20 @@ class Handler implements Runnable {
         }
     }
 
+    public void handleSendFile(FileWrapper file) throws SQLException {
+        try {
+            addFile(file);
+            sendRequest(new RequestSendMessage(true).serializeToStr());
+        } catch (SQLException e) {
+            sendRequest(new RequestSendMessage(false).serializeToStr());
+            throw new RuntimeException(e);
+        }
+    }
+
     public void handleGetMessage(CommandGetMessage msg) throws SQLException {
            System.out.println("sending request");
            sendRequest(new RequestGetMessage(getMessages(login)).serializeToStr());
+           sendRequest(new RequestGetFile(getFiles(login)).serializeToStr());
     }
 
     private Boolean checkJWT(String token) {
@@ -177,10 +186,17 @@ class Handler implements Runnable {
                             sendRequest(new RequestSendMessage(false).serializeToStr());
                         }
                     }
-                    case CommandType.GET_MESSAGE -> {
-
+                    case CommandType.SEND_FILE -> {
                         if(checkJWT(command.getJwtToken())) {
-                            handleGetMessage((CommandGetMessage) command);
+                            FileWrapper file = ((CommandSendFile) command).getFile();
+                            handleSendFile(file);
+                        } else {
+                            sendRequest(new RequestSendMessage(false).serializeToStr());
+                        }
+                    }
+                    case CommandType.GET_MESSAGE -> {
+                        if(checkJWT(command.getJwtToken())) {
+                            handleGetMessage((CommandGetMessage) command);//внутри handleGetMessage лежит также получение файлов
 
                         }
                         else {

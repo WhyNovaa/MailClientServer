@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Scanner;
 
 import command_models.Authorization;
+import command_models.FileWrapper;
 import command_models.Message;
 import command_models.Registration;
 import commands.*;
@@ -164,12 +165,23 @@ public class ClientMain {
             }
             case RequestType.GET_MESSAGE -> {
                 ArrayList<Message> mes = ((RequestGetMessage) req).getMessages();
-                if (mes.size() == 0) System.out.println("No new messages for you right now\n");
+                if (mes.size() == 0) System.out.println("No new messages for you right now");
                 for (int i = 0; i<mes.size();i++){
                     Message ur_message = mes.get(i);
                     System.out.println("from: " + ur_message.getFrom());
                     System.out.println("subject: " + ur_message.getSubject());
                     System.out.println("text: " + ur_message.getBody());
+                }
+            }
+            case RequestType.GET_FILE -> {
+                ArrayList<FileWrapper> files = ((RequestGetFile) req).getFiles();
+                if (files.size() == 0) System.out.println("No new files for you right now");
+                for (int i = 0; i<files.size();i++){
+                    FileWrapper file = files.get(i);
+
+//                    System.out.println("from: " + ur_message.getFrom());
+//                    System.out.println("subject: " + ur_message.getSubject());
+//                    System.out.println("text: " + ur_message.getBody());
                 }
             }
         }

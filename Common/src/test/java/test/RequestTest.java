@@ -1,5 +1,6 @@
 package test;
 
+import command_models.FileWrapper;
 import command_models.Message;
 import commands.Command;
 import commands.CommandSendMessage;
@@ -145,6 +146,42 @@ public class RequestTest {
         RequestGetMessage com = null;
         try {
             com = (RequestGetMessage) Request.deserializeFromStr(serializedRequest);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        assertEquals(expected, com);
+    }
+
+    @Test
+    public void isValidRequestGetFileSerialization() {
+        FileWrapper mes1 = new FileWrapper("subject", "from", "to", "body");
+        FileWrapper mes2 = new FileWrapper("theme", "admin", "user", "message");
+        ArrayList<FileWrapper> files = new ArrayList<FileWrapper>(2);
+        files.add(mes1);
+        files.add(mes2);
+
+        RequestGetFile reqtrue = new RequestGetFile(files);
+        String expected = "GET_FILE" + Separator.SEPARATOR + "subject" + Separator.SEPARATOR +
+                "from" + Separator.SEPARATOR + "to" + Separator.SEPARATOR + "body" + Separator.SEPARATOR
+                + "theme" + Separator.SEPARATOR +"admin" + Separator.SEPARATOR + "user" +Separator.SEPARATOR+ "message";
+        assertEquals(expected, reqtrue.serializeToStr());
+    }
+
+    @Test
+    public void isValidCommandDeserializationToRequestGetFile() throws Exception {
+        FileWrapper mes1 = new FileWrapper("subject", "from", "to", "body");
+        FileWrapper mes2 = new FileWrapper("theme", "admin", "user", "message");
+        ArrayList<FileWrapper> files = new ArrayList<FileWrapper>(2);
+        files.add(mes1);
+        files.add(mes2);
+
+        RequestGetFile expected = new RequestGetFile(files);
+
+        String serializedRequest = expected.serializeToStr();
+
+        RequestGetFile com = null;
+        try {
+            com = (RequestGetFile) Request.deserializeFromStr(serializedRequest);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
