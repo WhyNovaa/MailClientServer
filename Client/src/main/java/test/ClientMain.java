@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Scanner;
 
+import static java.lang.Thread.sleep;
 import static test.FileUtil.decodeBase64ToFile;
 import static test.FileUtil.encodeFileToBase64;
 
@@ -21,31 +22,26 @@ import static test.FileUtil.encodeFileToBase64;
 public class ClientMain {
 
     private static int PORT;
-    private static String jwt_token;
+    private static String jwt_token = null;
     private static String DIRECTORY;
+    private static volatile boolean running = true;
 
     public static void main(String[] args) {
         Dotenv dotenv = Dotenv.load();
         PORT = Integer.parseInt(Objects.requireNonNull(dotenv.get("PORT")));
         DIRECTORY = Objects.requireNonNull(dotenv.get("DIRECTORY"));
-
-        System.out.println("Input login then password to register or authorize");
+        createDirectoryIfNeeded(DIRECTORY);
 
         Scanner in = new Scanner(System.in);
-        String login = in.nextLine();
-        String password = in.nextLine();
-
-        Registration reg = new Registration(login, password);
-        Authorization auth = new Authorization(login, password);
 
         try (Socket socket = new Socket("localhost", PORT);
              BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 ) {
 
-            new Thread(() -> {
+            Thread readerThread = new Thread(() -> {
                 try {
                     String serverMessage;
-                    while (true) {
+                    while (running) {
                         if ((serverMessage = reader.readLine()) != null) {
                             HandleRequest(serverMessage);
                         }
@@ -55,15 +51,45 @@ public class ClientMain {
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-            }).start();
+            });
+            readerThread.start();
 
-            System.out.println("Input reg to register else anything");
-            if (in.nextLine().equals("reg")) {
-                sendRegistration(socket, new CommandRegistration(reg));
-            } else sendAuthorization(socket, new CommandAuthorization(auth));
+            String login = "";
+            String password = "";
 
-            System.out.println("Input write to write message, get to read ur messages");
-            String answer = in.nextLine();
+            while (jwt_token == null) {
+                System.out.println("Input reg to register or log to log in");
+
+
+                switch (in.nextLine()) {
+                    case "reg" -> {
+                        System.out.println("Input login then password");
+                        login = in.nextLine();
+                        password = in.nextLine();
+
+                        Registration reg = new Registration(login, password);
+                        sendRegistration(socket, new CommandRegistration(reg));
+                    }
+                    case "log" -> {
+                        System.out.println("Input login then password");
+                        login = in.nextLine();
+                        password = in.nextLine();
+
+                        Authorization auth = new Authorization(login, password);
+                        sendAuthorization(socket, new CommandAuthorization(auth));
+                    }
+                    default -> System.out.println("Wrong input");
+                }
+                try {
+                    sleep(40);
+                }
+                catch(Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            System.out.println("Input write to write message, get to read your messages, exit to exit");
+            String answer = in.nextLine().trim();
             while (!answer.equals("exit") && jwt_token!=null) {
 
                 switch (answer) {
@@ -93,16 +119,34 @@ public class ClientMain {
                         System.out.println("wrong input");
                     }
                 }
-
+                try {
+                    sleep(40);
+                }
+                catch(Exception e) {
+                    e.printStackTrace();
+                }
                 System.out.println("Input write to write message, get to read ur messages, exit to exit");
-                answer = in.nextLine();
+                answer = in.nextLine().trim();
             }
-
+            running = false;
+            readerThread.interrupt();
+            System.exit(0);
         } catch (IOException e) {
             System.err.println("Ошибка клиента: " + e.getMessage());
         }
+    }
 
-
+    private static void createDirectoryIfNeeded(String path) {
+        File directory = new File(path);
+        if (!directory.exists()) {
+            if (directory.mkdirs()) {
+                System.out.println("Directory created successfully: " + directory);
+            } else {
+                System.out.println("Failed to create the directory: " + directory);
+            }
+        } else {
+            System.out.println("Directory already exists: " + directory);
+        }
     }
 
 
@@ -163,23 +207,23 @@ public class ClientMain {
             case RequestType.LOGIN -> {
                 RequestAuthorization authRequest = (RequestAuthorization) req;
                 if (authRequest.isAuthorized()) {
-                    System.out.println("Authorized successfully");
+                    System.out.print("Authorized successfully");
                     jwt_token = authRequest.getJwt_token();
                     //System.out.println(jwt_token);
-                } else System.out.println("Incorrect login or password\n");
+                } else System.out.print("Incorrect login or password");
             }
             case RequestType.REGISTER -> {
                 RequestRegistration regRequest = (RequestRegistration) req;
                 if (regRequest.isRegistered()) {
-                    System.out.println("Registered successfully\n");
-                } else System.out.println("Login already exists\n");
+                    System.out.print("Registered successfully");
+                } else System.out.print("Login already exists");
             }
             case RequestType.SEND_MESSAGE -> {
                 RequestSendMessage sendRequest = (RequestSendMessage) req;
                 if (sendRequest.isSent()) {
-                    System.out.println("Your message had been sent\n");
+                    System.out.print("Your message had been sent");
                 } else
-                    System.out.println("Your message hadn't been sent, user with this nickname probably doesn`t exist\n");
+                    System.out.print("Your message hadn't been sent, user with this nickname probably doesn`t exist");
             }
             case RequestType.GET_MESSAGE -> {
                 ArrayList<Message> mes = ((RequestGetMessage) req).getMessages();
@@ -187,7 +231,7 @@ public class ClientMain {
                 for (Message ur_message : mes) {
                     System.out.println("from: " + ur_message.getFrom());
                     System.out.println("subject: " + ur_message.getSubject());
-                    System.out.println("text: " + ur_message.getBody());
+                    System.out.print("text: " + ur_message.getBody());
                 }
             }
             case RequestType.GET_FILE -> {
