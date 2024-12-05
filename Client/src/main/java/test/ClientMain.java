@@ -35,7 +35,7 @@ public class ClientMain {
 
         Scanner in = new Scanner(System.in);
 
-        try (Socket socket = new Socket("10.160.77.15", PORT);
+        try (Socket socket = new Socket("10.150.6.241", PORT);
              BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 ) {
 
@@ -71,6 +71,8 @@ public class ClientMain {
 
                         Registration reg = new Registration(login, password);
                         sendRegistration(socket, new CommandRegistration(reg));
+                        waiting = true;
+                        while(waiting) {}
                     }
                     case "log" -> {
                         System.out.println("Input login then password");
@@ -79,11 +81,12 @@ public class ClientMain {
 
                         Authorization auth = new Authorization(login, password);
                         sendAuthorization(socket, new CommandAuthorization(auth));
+                        waiting = true;
+                        while(waiting) {}
                     }
                     default -> System.out.println("Wrong input");
                 }
-                waiting = true;
-                while(waiting) {}
+
             }
 
             System.out.println("Input write to write message, get to read your messages, exit to exit");
@@ -99,10 +102,14 @@ public class ClientMain {
                         String body = in.nextLine();
                         Message mes = new Message(subject, login, receiver, body);
                         sendMessage(socket, new CommandSendMessage(mes, jwt_token));
+                        waiting = true;
+                        while(waiting) {}
                     }
 
                     case "get" -> {
                         sendMessagesCheck(socket, new CommandGetMessage(jwt_token));
+                        waiting = true;
+                        while(waiting) {}
                     }
 
                     case "file" -> {
@@ -111,14 +118,15 @@ public class ClientMain {
                         String path = in.nextLine();
                         MessageFileWrapper file = encodeFileToBase64(path, login, receiver);
                         sendFile(socket, new CommandSendFile(file, jwt_token));
+                        waiting = true;
+                        while(waiting) {}
                     }
 
                     default -> {
                         System.out.println("wrong input");
                     }
                 }
-                waiting = true;
-                while(waiting) {}
+
                 System.out.println("Input write to write message, get to read ur messages, exit to exit");
                 answer = in.nextLine().trim();
             }
