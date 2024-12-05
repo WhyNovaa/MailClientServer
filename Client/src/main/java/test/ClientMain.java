@@ -25,6 +25,7 @@ public class ClientMain {
     private static String jwt_token = null;
     private static String DIRECTORY;
     private static volatile boolean running = true;
+    private static volatile boolean waiting = true;
 
     public static void main(String[] args) {
         Dotenv dotenv = Dotenv.load();
@@ -34,7 +35,7 @@ public class ClientMain {
 
         Scanner in = new Scanner(System.in);
 
-        try (Socket socket = new Socket("localhost", PORT);
+        try (Socket socket = new Socket("10.160.77.15", PORT);
              BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 ) {
 
@@ -44,6 +45,7 @@ public class ClientMain {
                     while (running) {
                         if ((serverMessage = reader.readLine()) != null) {
                             HandleRequest(serverMessage);
+                            waiting = false;
                         }
                     }
                 } catch (IOException e) {
@@ -80,12 +82,8 @@ public class ClientMain {
                     }
                     default -> System.out.println("Wrong input");
                 }
-                try {
-                    sleep(40);
-                }
-                catch(Exception e) {
-                    e.printStackTrace();
-                }
+                waiting = true;
+                while(waiting) {}
             }
 
             System.out.println("Input write to write message, get to read your messages, exit to exit");
@@ -119,12 +117,8 @@ public class ClientMain {
                         System.out.println("wrong input");
                     }
                 }
-                try {
-                    sleep(40);
-                }
-                catch(Exception e) {
-                    e.printStackTrace();
-                }
+                waiting = true;
+                while(waiting) {}
                 System.out.println("Input write to write message, get to read ur messages, exit to exit");
                 answer = in.nextLine().trim();
             }
