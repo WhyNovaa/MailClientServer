@@ -4,7 +4,6 @@ import command_models.*;
 import commands.*;
 import io.github.cdimascio.dotenv.Dotenv;
 import requests.*;
-import tools.*;
 
 import javax.xml.bind.JAXBException;
 import java.io.*;
@@ -98,7 +97,7 @@ public class ClientMain {
                 }
             }
 
-            System.out.println("Input write to write message, get to read your messages, exit to exit");
+            System.out.println("Input write to write message, get to read your messages, file to send file, exit to exit");
             String answer = in.nextLine().trim();
             while (!answer.equals("exit") && jwt_token != null) {
                 switch (answer) {
@@ -128,7 +127,7 @@ public class ClientMain {
                     }
                     default -> System.out.println("Wrong input");
                 }
-                System.out.println("Input write to write message, get to read your messages, exit to exit");
+                System.out.println("Input write to write message, get to read your messages, file to send file, exit to exit");
                 answer = in.nextLine().trim();
             }
             running = false;
@@ -164,7 +163,6 @@ public class ClientMain {
 
 
     static void HandleRequest(String message) throws Exception {
-        System.out.println(message);
         Request req = XMLUtils.xmlToObject(message, Request.class);
 
         switch (req.getType()) {

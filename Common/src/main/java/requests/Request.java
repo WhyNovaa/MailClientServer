@@ -1,13 +1,9 @@
 package requests;
 
-import command_models.MessageFileWrapper;
-import command_models.Message;
 import command_models.XMLUtils;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "Request")

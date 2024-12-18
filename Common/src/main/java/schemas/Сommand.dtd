@@ -22,10 +22,27 @@
 
         <!ELEMENT CommandGetMessage (CommandType, JwtToken)>
 
-        <!-- Определения элементов для Command -->
         <!ELEMENT from (#PCDATA)>
         <!ELEMENT to (#PCDATA)>
         <!ELEMENT subject (#PCDATA)>
         <!ELEMENT body (#PCDATA)>
         <!ELEMENT fileName (#PCDATA)>
         <!ELEMENT fileContent (#PCDATA)>
+
+        <!ELEMENT Request (RequestType)>
+        <!ELEMENT RequestType (#PCDATA)>
+
+        <!ELEMENT RequestAuthorization (RequestType, Authorized, JwtToken)>
+        <!ELEMENT Authorized (#PCDATA)>
+
+        <!ELEMENT RequestGetFile (RequestType, MessageFileWrappers)>
+        <!ELEMENT MessageFileWrappers (MessageFileWrapper*)>
+
+        <!ELEMENT RequestGetMessage (RequestType, Messages)>
+        <!ELEMENT Messages (Message*)>
+
+        <!ELEMENT RequestRegistration (RequestType, Registered)>
+        <!ELEMENT Registered (#PCDATA)>
+
+        <!ELEMENT RequestSendMessage (RequestType, IsSent)>
+        <!ELEMENT IsSent (#PCDATA)>

@@ -2,7 +2,6 @@ package commands;
 
 import command_models.XMLUtils;
 import org.xml.sax.SAXException;
-import tools.JWT_TOKEN;
 import tools.Separator;
 
 import javax.xml.bind.JAXBException;

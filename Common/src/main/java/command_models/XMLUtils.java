@@ -1,17 +1,14 @@
 package command_models;
 
-import commands.Command;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.*;
-import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import java.io.*;
 
 public class XMLUtils {
-    static String schemaFilePath = "C:/Projects/Java/mail server/MailClientServer/path/to/your/schema.xsd";
 
     public static String objectToXML(Object object) throws JAXBException {
         StringWriter sw = new StringWriter();
