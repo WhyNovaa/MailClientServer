@@ -1,40 +1,48 @@
 package requests;
 
-import tools.Separator;
+import command_models.XMLUtils;
 
+import javax.xml.bind.annotation.*;
 import java.util.Objects;
 
-public class RequestSendMessage extends Request{
-    Boolean is_sent;
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "RequestSendMessage")
+public class RequestSendMessage extends Request {
+
+    @XmlElement(name = "IsSent")
+    private Boolean is_sent;
+
     private static final String state = "sent";
 
-    public String getState(){
+    public String getState() {
         return state;
     }
 
-    public RequestSendMessage(Boolean is_sent){
+    public RequestSendMessage(Boolean is_sent) {
         super(RequestType.SEND_MESSAGE);
         this.is_sent = is_sent;
     }
 
-
     public RequestSendMessage(String str) {
         super(RequestType.SEND_MESSAGE);
-        try{
+        try {
             this.is_sent = check(str);
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    Boolean check(String str)throws Exception{
+    public RequestSendMessage() {
+        super(RequestType.SEND_MESSAGE);
+    }
+
+    private Boolean check(String str) throws Exception {
         if (str.equals(state)) return true;
         if (str.equals("not " + state)) return false;
         throw new Exception("incorrect state of sending");
     }
 
-    public Boolean isSent(){
+    public Boolean isSent() {
         return is_sent;
     }
 
@@ -49,10 +57,21 @@ public class RequestSendMessage extends Request{
     }
 
     @Override
-    public String serializeToStr() {
-        String str = getType().toString() + Separator.SEPARATOR ;
-        if (is_sent) str+= state;
-        else str+= "not " + state;
-        return  str;
+    public String serializeToXML() {
+        try {
+            return XMLUtils.objectToXML(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static RequestSendMessage deserializeFromStr(String xml) {
+        try {
+            return (RequestSendMessage) XMLUtils.xmlToObject(xml, RequestSendMessage.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

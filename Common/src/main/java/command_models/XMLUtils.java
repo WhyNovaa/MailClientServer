@@ -27,7 +27,6 @@ public class XMLUtils {
         JAXBContext context = JAXBContext.newInstance(clazz);
         Unmarshaller unmarshaller = context.createUnmarshaller();
 
-        // Указываем схему для валидации
         SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         Schema schema = sf.newSchema(new File("Common\\src\\main\\java\\schemas\\schema.xsd"));
         unmarshaller.setSchema(schema);

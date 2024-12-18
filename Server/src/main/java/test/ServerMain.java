@@ -66,12 +66,13 @@ class Handler implements Runnable {
         }
     }
 
-    void sendRequest(String req) {
+    void sendRequest(Object req) {
         try {
-            writer.write(req + "\n");
+            String xml = XMLUtils.objectToXML(req);
+            writer.write(xml + "\n");
             writer.flush();
-            System.out.println("Sent: " + req);
-        } catch (IOException e) {
+            System.out.println("Sent: " + xml);
+        } catch (IOException | JAXBException e) {
             throw new RuntimeException(e);
         }
     }
@@ -81,15 +82,15 @@ class Handler implements Runnable {
             User user = getUser(auth.getLogin());
             if (user == null) {
                 // Login incorrect
-                sendRequest(new RequestAuthorization(false, " ").serializeToStr());
+                sendRequest(new RequestAuthorization(false, " "));
             } else {
                 if (user.getPassword().equals(Sha256.hash(auth.getPassword()))) {
                     String token = JWT_TOKEN.createJwt(auth.getLogin());
                     login = user.getLogin();
-                    sendRequest(new RequestAuthorization(true, token).serializeToStr());
+                    sendRequest(new RequestAuthorization(true, token));
                 } else {
                     // Wrong password
-                    sendRequest(new RequestAuthorization(false, " ").serializeToStr());
+                    sendRequest(new RequestAuthorization(false, " "));
                 }
             }
         } catch (SQLException e) {
@@ -101,11 +102,11 @@ class Handler implements Runnable {
         try {
             User user = getUser(reg.getLogin());
             if (user != null) {
-                sendRequest(new RequestRegistration(false).serializeToStr());
+                sendRequest(new RequestRegistration(false));
             } else {
                 addUser(reg);
                 this.login = reg.getLogin();
-                sendRequest(new RequestRegistration(true).serializeToStr());
+                sendRequest(new RequestRegistration(true));
             }
         } catch (SQLException e) {
             System.err.println(e.getMessage());
@@ -115,9 +116,9 @@ class Handler implements Runnable {
     public void handleSendMessage(Message msg) throws SQLException {
         try {
             addMessage(msg);
-            sendRequest(new RequestSendMessage(true).serializeToStr());
+            sendRequest(new RequestSendMessage(true));
         } catch (SQLException e) {
-            sendRequest(new RequestSendMessage(false).serializeToStr());
+            sendRequest(new RequestSendMessage(false));
             throw new RuntimeException(e);
         }
     }
@@ -125,17 +126,17 @@ class Handler implements Runnable {
     public void handleSendFile(MessageFileWrapper file) throws SQLException {
         try {
             addFile(file);
-            sendRequest(new RequestSendMessage(true).serializeToStr());
+            sendRequest(new RequestSendMessage(true));
         } catch (SQLException e) {
-            sendRequest(new RequestSendMessage(false).serializeToStr());
+            sendRequest(new RequestSendMessage(false));
             throw new RuntimeException(e);
         }
     }
 
     public void handleGetMessage(CommandGetMessage msg) throws SQLException {
         System.out.println("sending request");
-        sendRequest(new RequestGetMessage(getMessages(login)).serializeToStr());
-        sendRequest(new RequestGetFile(getFiles(login)).serializeToStr());
+        sendRequest(new RequestGetMessage(getMessages(login)));
+        sendRequest(new RequestGetFile(getFiles(login)));
     }
 
     private Boolean checkJWT(String token) {
@@ -181,7 +182,7 @@ class Handler implements Runnable {
                             Message mes = ((CommandSendMessage) command).getMessage();
                             handleSendMessage(mes);
                         } else {
-                            sendRequest(new RequestSendMessage(false).serializeToStr());
+                            sendRequest(new RequestSendMessage(false));
                         }
                     }
                     case CommandType.SEND_FILE -> {
@@ -189,7 +190,7 @@ class Handler implements Runnable {
                             MessageFileWrapper file = ((CommandSendFile) command).getFile();
                             handleSendFile(file);
                         } else {
-                            sendRequest(new RequestSendMessage(false).serializeToStr());
+                            sendRequest(new RequestSendMessage(false));
                         }
                     }
                     case CommandType.GET_MESSAGE -> {
@@ -197,7 +198,7 @@ class Handler implements Runnable {
                             handleGetMessage((CommandGetMessage) command);
                         } else {
                             System.out.println("wrong jwt");
-                            sendRequest(new RequestGetMessage(new ArrayList<>()).serializeToStr());
+                            sendRequest(new RequestGetMessage(new ArrayList<>()));
                         }
                     }
                 }
@@ -215,4 +216,3 @@ class Handler implements Runnable {
         }
     }
 }
-

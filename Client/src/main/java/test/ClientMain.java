@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Scanner;
 
-import static java.lang.Thread.sleep;
 import static test.FileUtil.decodeBase64ToFile;
 import static test.FileUtil.encodeFileToBase64;
 
@@ -41,10 +40,25 @@ public class ClientMain {
                 try {
                     String serverMessage;
                     while (running) {
-                        if ((serverMessage = reader.readLine()) != null) {
-                            HandleRequest(serverMessage);
-                            waiting = false;
+                        StringBuilder xmlMessage = new StringBuilder();
+                        String line;
+
+                        // Считываем сообщение до конца
+                        while ((line = reader.readLine()) != null) {
+                            if (line.trim().isEmpty()) {
+                                break;
+                            }
+                            xmlMessage.append(line).append("\n");
                         }
+
+                        if (xmlMessage.length() == 0) {
+                            // Нет новых сообщений, продолжаем ожидать
+                            continue;
+                        }
+                        System.out.println("here");
+                        HandleRequest(xmlMessage.toString());
+                        waiting = false;
+
                     }
                 } catch (IOException e) {
                     System.err.println(e.getMessage());
@@ -149,8 +163,9 @@ public class ClientMain {
         }
     }
 
+
     static void HandleRequest(String message) throws Exception {
-        Request req = Request.deserializeFromStr(message);
+        Request req = (Request) XMLUtils.xmlToObject(message, Request.class);
 
         switch (req.getType()) {
             case RequestType.LOGIN -> {
@@ -179,7 +194,7 @@ public class ClientMain {
                 }
             }
             case RequestType.GET_MESSAGE -> {
-                ArrayList<Message> mes = ((RequestGetMessage) req).getMessages();
+                ArrayList<Message> mes = (ArrayList<Message>) ((RequestGetMessage) req).getMessages();
                 if (mes.isEmpty()) {
                     System.out.println("No new messages for you right now");
                 } else {
@@ -191,7 +206,7 @@ public class ClientMain {
                 }
             }
             case RequestType.GET_FILE -> {
-                ArrayList<MessageFileWrapper> files = ((RequestGetFile) req).getFiles();
+                ArrayList<MessageFileWrapper> files = (ArrayList<MessageFileWrapper>) ((RequestGetFile) req).getFiles();
                 if (files.isEmpty()) {
                     System.out.println("No new files for you right now");
                 } else {

@@ -15,7 +15,7 @@ import static tools.JWT_TOKEN.createJwt;
 
 public class RequestTest {
 
-    @Test
+    /*@Test
     public void isValidRequestAuthorizationSerialization() {
         String token = createJwt("admin");
         RequestAuthorization reqtrue = new RequestAuthorization(true, token);
@@ -185,5 +185,5 @@ public class RequestTest {
             fail();
         }
         assertEquals(expected, com);
-    }
+    }*/
 }

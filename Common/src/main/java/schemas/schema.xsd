@@ -98,4 +98,84 @@
     </xs:complexContent>
   </xs:complexType>
 
+  <xs:element name="Request" type="RequestType"/>
+  <xs:complexType name="RequestType" abstract="true">
+    <xs:sequence>
+      <xs:element name="RequestType" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="RequestAuthorization" type="RequestAuthorizationType"/>
+
+  <xs:complexType name="RequestAuthorizationType">
+    <xs:complexContent>
+      <xs:extension base="RequestType">
+        <xs:sequence>
+          <xs:element name="Authorized" type="xs:boolean"/>
+          <xs:element name="JwtToken" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="RequestGetFile" type="RequestGetFileType"/>
+
+  <xs:complexType name="RequestGetFileType">
+    <xs:complexContent>
+      <xs:extension base="RequestType">
+        <xs:sequence>
+          <xs:element name="Files" type="MessageFileWrapperListType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="MessageFileWrapperListType">
+    <xs:sequence>
+      <xs:element name="file" type="MessageFileWrapperType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="RequestGetMessage" type="RequestGetMessageType"/>
+
+  <xs:complexType name="RequestGetMessageType">
+    <xs:complexContent>
+      <xs:extension base="RequestType">
+        <xs:sequence>
+          <xs:element name="Messages" type="MessageListType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="MessageListType">
+    <xs:sequence>
+      <xs:element name="message" type="MessageType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="RequestRegistration" type="RequestRegistrationType"/>
+
+  <xs:complexType name="RequestRegistrationType">
+    <xs:complexContent>
+      <xs:extension base="RequestType">
+        <xs:sequence>
+          <xs:element name="Registered" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="RequestSendMessage" type="RequestSendMessageType"/>
+
+  <xs:complexType name="RequestSendMessageType">
+    <xs:complexContent>
+      <xs:extension base="RequestType">
+        <xs:sequence>
+          <xs:element name="IsSent" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
 </xs:schema>
