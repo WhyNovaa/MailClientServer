@@ -124,7 +124,7 @@
     <xs:complexContent>
       <xs:extension base="RequestType">
         <xs:sequence>
-          <xs:element name="Files" type="MessageFileWrapperListType"/>
+          <xs:element name="MessageFileWrappers" type="MessageFileWrapperListType" minOccurs="0"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -132,7 +132,7 @@
 
   <xs:complexType name="MessageFileWrapperListType">
     <xs:sequence>
-      <xs:element name="file" type="MessageFileWrapperType" maxOccurs="unbounded"/>
+      <xs:element name="MessageFileWrapper" type="MessageFileWrapperType" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -142,7 +142,7 @@
     <xs:complexContent>
       <xs:extension base="RequestType">
         <xs:sequence>
-          <xs:element name="Messages" type="MessageListType"/>
+          <xs:element name="Messages" type="MessageListType" minOccurs="0"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -150,7 +150,7 @@
 
   <xs:complexType name="MessageListType">
     <xs:sequence>
-      <xs:element name="message" type="MessageType" maxOccurs="unbounded"/>
+      <xs:element name="Message" type="MessageType" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:complexType>
 

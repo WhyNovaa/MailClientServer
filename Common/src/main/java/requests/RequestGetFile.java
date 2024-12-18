@@ -12,7 +12,8 @@ import java.util.Objects;
 @XmlRootElement(name = "RequestGetFile")
 public class RequestGetFile extends Request {
 
-    @XmlElement(name = "Files")
+    @XmlElementWrapper(name = "MessageFileWrappers")
+    @XmlElement(name = "MessageFileWrapper")
     private List<MessageFileWrapper> files;
 
     public RequestGetFile(List<MessageFileWrapper> files) {

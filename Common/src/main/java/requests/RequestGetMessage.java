@@ -1,17 +1,27 @@
 package requests;
 
 import command_models.Message;
-import tools.Separator;
+import command_models.XMLUtils;
 
-import java.util.ArrayList;
+import javax.xml.bind.annotation.*;
+import java.util.List;
 import java.util.Objects;
 
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "RequestGetMessage")
 public class RequestGetMessage extends Request {
-    private ArrayList<Message> messages;
 
-    public RequestGetMessage(ArrayList<Message> mes) {
+    @XmlElementWrapper(name = "Messages")
+    @XmlElement(name = "Message")
+    private List<Message> messages;
+
+    public RequestGetMessage(List<Message> messages) {
         super(RequestType.GET_MESSAGE);
-        this.messages = mes;
+        this.messages = messages;
+    }
+
+    public RequestGetMessage() {
+        super(RequestType.GET_MESSAGE);
     }
 
     @Override
@@ -26,15 +36,25 @@ public class RequestGetMessage extends Request {
     }
 
     @Override
-    public String serializeToStr() {
-        String str = this.getType().toString();
-        for (int i = 0; i < messages.size(); i++) {
-            str += Separator.SEPARATOR + messages.get(i).serializeToStr();
+    public String serializeToXML() {
+        try {
+            return XMLUtils.objectToXML(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
-        return str;
     }
 
-    public ArrayList<Message> getMessages() {
+    public static RequestGetMessage deserializeFromStr(String xml) {
+        try {
+            return (RequestGetMessage) XMLUtils.xmlToObject(xml, RequestGetMessage.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public List<Message> getMessages() {
         return messages;
     }
 }

@@ -55,7 +55,6 @@ public class ClientMain {
                             // Нет новых сообщений, продолжаем ожидать
                             continue;
                         }
-                        System.out.println("here");
                         HandleRequest(xmlMessage.toString());
                         waiting = false;
 
@@ -165,6 +164,7 @@ public class ClientMain {
 
 
     static void HandleRequest(String message) throws Exception {
+        System.out.println(message);
         Request req = (Request) XMLUtils.xmlToObject(message, Request.class);
 
         switch (req.getType()) {
