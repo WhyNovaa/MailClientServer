@@ -22,6 +22,7 @@ public class ClientMain {
     private static String DIRECTORY;
     private static volatile boolean running = true;
     private static volatile boolean waiting = true;
+    private static volatile boolean waiting1 = true;
 
     public static void main(String[] args) {
         Dotenv dotenv = Dotenv.load();
@@ -50,13 +51,11 @@ public class ClientMain {
                             xmlMessage.append(line).append("\n");
                         }
 
-                        System.out.println(xmlMessage);
                         if (xmlMessage.length() == 0) {
                             // Нет новых сообщений, продолжаем ожидать
                             continue;
                         }
                         HandleRequest(xmlMessage.toString());
-                        waiting = false;
 
                     }
                 } catch (IOException e) {
@@ -115,7 +114,8 @@ public class ClientMain {
                     case "get" -> {
                         sendCommand(writer, new CommandGetMessage(jwt_token));
                         waiting = true;
-                        while (waiting) {}
+                        waiting1 = true;
+                        while (waiting || waiting1) {}
                     }
                     case "file" -> {
                         System.out.println("Input receiver and path to file");
@@ -164,7 +164,6 @@ public class ClientMain {
 
 
     static void HandleRequest(String message) throws Exception {
-        System.out.println(message);
         Request req = (Request) XMLUtils.xmlToObject(message, Request.class);
 
         switch (req.getType()) {
@@ -176,6 +175,7 @@ public class ClientMain {
                 } else {
                     System.out.print("Incorrect login or password");
                 }
+                waiting = false;
             }
             case RequestType.REGISTER -> {
                 RequestRegistration regRequest = (RequestRegistration) req;
@@ -184,6 +184,7 @@ public class ClientMain {
                 } else {
                     System.out.print("Login already exists");
                 }
+                waiting = false;
             }
             case RequestType.SEND_MESSAGE -> {
                 RequestSendMessage sendRequest = (RequestSendMessage) req;
@@ -192,6 +193,7 @@ public class ClientMain {
                 } else {
                     System.out.print("Your message hadn't been sent, user with this nickname probably doesn't exist");
                 }
+                waiting = false;
             }
             case RequestType.GET_MESSAGE -> {
                 //RequestGetMessage getreq = ((RequestGetMessage) req);
@@ -205,6 +207,7 @@ public class ClientMain {
                         System.out.print("text: " + ur_message.getBody());
                     }
                 }
+                waiting = false;
             }
             case RequestType.GET_FILE -> {
                 ArrayList<MessageFileWrapper> files = (ArrayList<MessageFileWrapper>) ((RequestGetFile) req).getFiles();
@@ -215,6 +218,7 @@ public class ClientMain {
                         decodeBase64ToFile(file, DIRECTORY);
                     }
                 }
+                waiting1 = false;
             }
         }
         System.out.println();
