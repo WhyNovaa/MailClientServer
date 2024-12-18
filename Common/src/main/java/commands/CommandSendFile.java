@@ -1,13 +1,24 @@
 package commands;
 
 import command_models.MessageFileWrapper;
+import command_models.XMLUtils;
+import org.xml.sax.SAXException;
 import tools.Separator;
 
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.annotation.*;
 import java.util.Objects;
 
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "CommandSendFile")
 public class CommandSendFile extends Command {
 
+    @XmlElement(name = "file")
     private MessageFileWrapper file;
+
+    public CommandSendFile() {
+        super(CommandType.SEND_FILE, " ");
+    }
 
     public CommandSendFile(MessageFileWrapper file, String jwt_token) {
         super(CommandType.SEND_FILE, jwt_token);
@@ -19,10 +30,10 @@ public class CommandSendFile extends Command {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        commands.CommandSendFile commandSendMessage = (commands.CommandSendFile) o;
+        CommandSendFile commandSendFile = (CommandSendFile) o;
 
-        return Objects.equals(this.file, commandSendMessage.file)
-                && Objects.equals(this.getType(), commandSendMessage.getType());
+        return Objects.equals(this.file, commandSendFile.file)
+                && Objects.equals(this.getType(), commandSendFile.getType());
     }
 
     @Override
@@ -32,5 +43,29 @@ public class CommandSendFile extends Command {
 
     public MessageFileWrapper getFile() {
         return file;
+    }
+
+    public void setFile(MessageFileWrapper file) {
+        this.file = file;
+    }
+
+    public String serializeToXML() {
+        try {
+            return XMLUtils.objectToXML(this);
+        } catch (JAXBException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static CommandSendFile deserializeFromXML(String xml) {
+        try {
+            return XMLUtils.xmlToObject(xml, CommandSendFile.class);
+        } catch (JAXBException e) {
+            e.printStackTrace();
+            return null;
+        } catch (SAXException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

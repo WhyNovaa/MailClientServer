@@ -1,48 +1,60 @@
 package requests;
 
-import tools.Separator;
+import command_models.XMLUtils;
 
+import javax.xml.bind.annotation.*;
 import java.util.Objects;
 
-public class RequestAuthorization extends Request{//2 possible answers but type specification needed
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "RequestAuthorization")
+public class RequestAuthorization extends Request {
+
     private static final String state = "authorized";
-    Boolean authorized;
+
+    @XmlElement(name = "Authorized")
+    private Boolean authorized;
+
+    @XmlElement(name = "JwtToken")
     private String jwt_token;
 
-    public String getState(){
+    public String getState() {
         return state;
     }
 
-    public RequestAuthorization(Boolean flag, String jwt){
+    public RequestAuthorization(Boolean flag, String jwt) {
         super(RequestType.LOGIN);
-        authorized = flag;
-        jwt_token = jwt;
+        this.authorized = flag;
+        this.jwt_token = jwt;
     }
 
-    public RequestAuthorization(String authorization, String jwt){
+    public RequestAuthorization(String authorization, String jwt) {
         super(RequestType.LOGIN);
-        jwt_token = jwt;
-        try{
+        this.jwt_token = jwt;
+        try {
             this.authorized = check(authorization);
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    Boolean check(String str)throws Exception{
+    public RequestAuthorization() {
+        super(RequestType.LOGIN);
+    }
+
+    private Boolean check(String str) throws Exception {
         if (str.equals(state)) return true;
         if (str.equals("not " + state)) return false;
         throw new Exception("incorrect state of authorization");
     }
 
-    public Boolean isAuthorized(){
+    public Boolean isAuthorized() {
         return authorized;
     }
 
-    public String getJwt_token(){
+    public String getJwt_token() {
         return jwt_token;
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -54,11 +66,21 @@ public class RequestAuthorization extends Request{//2 possible answers but type 
     }
 
     @Override
-    public String serializeToStr() {
-        String str = getType().toString() + Separator.SEPARATOR ;
-        if (authorized) str+= state;
-        else str+= "not " + state;
-        str += Separator.SEPARATOR + jwt_token;
-      return  str;
+    public String serializeToXML() {
+        try {
+            return XMLUtils.objectToXML(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static RequestAuthorization deserializeFromStr(String xml) {
+        try {
+            return (RequestAuthorization) XMLUtils.xmlToObject(xml, RequestAuthorization.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

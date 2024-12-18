@@ -1,0 +1,48 @@
+<!ELEMENT Command (CommandType, JwtToken)>
+        <!ELEMENT CommandType (#PCDATA)>
+        <!ELEMENT JwtToken (#PCDATA)>
+
+        <!ELEMENT CommandAuthorization (CommandType, JwtToken, auth)>
+        <!ELEMENT auth (Authorization)>
+        <!ELEMENT Authorization (login, password)>
+        <!ELEMENT login (#PCDATA)>
+        <!ELEMENT password (#PCDATA)>
+
+        <!ELEMENT CommandRegistration (CommandType, JwtToken, reg)>
+        <!ELEMENT reg (Registration)>
+        <!ELEMENT Registration (login, password)>
+
+        <!ELEMENT CommandSendMessage (CommandType, JwtToken, mes)>
+        <!ELEMENT mes (Message)>
+        <!ELEMENT Message (from, to, subject, body)>
+
+        <!ELEMENT CommandSendFile (CommandType, JwtToken, file)>
+        <!ELEMENT file (MessageFileWrapper)>
+        <!ELEMENT MessageFileWrapper (from, to, fileName, fileContent)>
+
+        <!ELEMENT CommandGetMessage (CommandType, JwtToken)>
+
+        <!ELEMENT from (#PCDATA)>
+        <!ELEMENT to (#PCDATA)>
+        <!ELEMENT subject (#PCDATA)>
+        <!ELEMENT body (#PCDATA)>
+        <!ELEMENT fileName (#PCDATA)>
+        <!ELEMENT fileContent (#PCDATA)>
+
+        <!ELEMENT Request (RequestType)>
+        <!ELEMENT RequestType (#PCDATA)>
+
+        <!ELEMENT RequestAuthorization (RequestType, Authorized, JwtToken)>
+        <!ELEMENT Authorized (#PCDATA)>
+
+        <!ELEMENT RequestGetFile (RequestType, MessageFileWrappers)>
+        <!ELEMENT MessageFileWrappers (MessageFileWrapper*)>
+
+        <!ELEMENT RequestGetMessage (RequestType, Messages)>
+        <!ELEMENT Messages (Message*)>
+
+        <!ELEMENT RequestRegistration (RequestType, Registered)>
+        <!ELEMENT Registered (#PCDATA)>
+
+        <!ELEMENT RequestSendMessage (RequestType, IsSent)>
+        <!ELEMENT IsSent (#PCDATA)>

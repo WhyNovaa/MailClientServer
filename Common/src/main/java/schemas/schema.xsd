@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="Command" type="CommandType" abstract="true"/>
+
+  <xs:complexType name="CommandType" abstract="true">
+    <xs:sequence>
+      <xs:element name="CommandType" type="xs:string"/>
+      <xs:element name="JwtToken" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="CommandAuthorization" type="CommandAuthorizationType"/>
+
+  <xs:complexType name="CommandAuthorizationType">
+    <xs:complexContent>
+      <xs:extension base="CommandType">
+        <xs:sequence>
+          <xs:element name="auth" type="AuthorizationType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="AuthorizationType">
+    <xs:sequence>
+      <xs:element name="login" type="xs:string"/>
+      <xs:element name="password" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="CommandRegistration" type="CommandRegistrationType"/>
+
+  <xs:complexType name="CommandRegistrationType">
+    <xs:complexContent>
+      <xs:extension base="CommandType">
+        <xs:sequence>
+          <xs:element name="reg" type="RegistrationType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="RegistrationType">
+    <xs:sequence>
+      <xs:element name="login" type="xs:string"/>
+      <xs:element name="password" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="CommandSendMessage" type="CommandSendMessageType"/>
+
+  <xs:complexType name="CommandSendMessageType">
+    <xs:complexContent>
+      <xs:extension base="CommandType">
+        <xs:sequence>
+          <xs:element name="mes" type="MessageType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="MessageType">
+    <xs:sequence>
+      <xs:element name="from" type="xs:string"/>
+      <xs:element name="to" type="xs:string"/>
+      <xs:element name="subject" type="xs:string"/>
+      <xs:element name="body" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="CommandSendFile" type="CommandSendFileType"/>
+
+  <xs:complexType name="CommandSendFileType">
+    <xs:complexContent>
+      <xs:extension base="CommandType">
+        <xs:sequence>
+          <xs:element name="file" type="MessageFileWrapperType"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="MessageFileWrapperType">
+    <xs:sequence>
+      <xs:element name="from" type="xs:string"/>
+      <xs:element name="to" type="xs:string"/>
+      <xs:element name="fileName" type="xs:string"/>
+      <xs:element name="fileContent" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="CommandGetMessage" type="CommandGetMessageType"/>
+
+  <xs:complexType name="CommandGetMessageType">
+    <xs:complexContent>
+      <xs:extension base="CommandType"/>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="Request" type="RequestType"/>
+  <xs:complexType name="RequestType" abstract="true">
+    <xs:sequence>
+      <xs:element name="RequestType" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="RequestAuthorization" type="RequestAuthorizationType"/>
+
+  <xs:complexType name="RequestAuthorizationType">
+    <xs:complexContent>
+      <xs:extension base="RequestType">
+        <xs:sequence>
+          <xs:element name="Authorized" type="xs:boolean"/>
+          <xs:element name="JwtToken" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="RequestGetFile" type="RequestGetFileType"/>
+
+  <xs:complexType name="RequestGetFileType">
+    <xs:complexContent>
+      <xs:extension base="RequestType">
+        <xs:sequence>
+          <xs:element name="MessageFileWrappers" type="MessageFileWrapperListType" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="MessageFileWrapperListType">
+    <xs:sequence>
+      <xs:element name="MessageFileWrapper" type="MessageFileWrapperType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="RequestGetMessage" type="RequestGetMessageType"/>
+
+  <xs:complexType name="RequestGetMessageType">
+    <xs:complexContent>
+      <xs:extension base="RequestType">
+        <xs:sequence>
+          <xs:element name="Messages" type="MessageListType" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="MessageListType">
+    <xs:sequence>
+      <xs:element name="Message" type="MessageType" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="RequestRegistration" type="RequestRegistrationType"/>
+
+  <xs:complexType name="RequestRegistrationType">
+    <xs:complexContent>
+      <xs:extension base="RequestType">
+        <xs:sequence>
+          <xs:element name="Registered" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="RequestSendMessage" type="RequestSendMessageType"/>
+
+  <xs:complexType name="RequestSendMessageType">
+    <xs:complexContent>
+      <xs:extension base="RequestType">
+        <xs:sequence>
+          <xs:element name="IsSent" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+</xs:schema>

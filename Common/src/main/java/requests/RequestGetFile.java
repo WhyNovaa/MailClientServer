@@ -1,18 +1,27 @@
 package requests;
 
 import command_models.MessageFileWrapper;
-import tools.Separator;
+import command_models.XMLUtils;
 
-
-import java.util.ArrayList;
+import javax.xml.bind.annotation.*;
+import java.util.List;
 import java.util.Objects;
 
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "RequestGetFile")
 public class RequestGetFile extends Request {
-    private ArrayList<MessageFileWrapper> files;
 
-    public RequestGetFile(ArrayList<MessageFileWrapper> files) {
+    @XmlElementWrapper(name = "MessageFileWrappers")
+    @XmlElement(name = "MessageFileWrapper")
+    private List<MessageFileWrapper> files;
+
+    public RequestGetFile(List<MessageFileWrapper> files) {
         super(RequestType.GET_FILE);
         this.files = files;
+    }
+
+    public RequestGetFile() {
+        super(RequestType.GET_FILE);
     }
 
     @Override
@@ -27,15 +36,25 @@ public class RequestGetFile extends Request {
     }
 
     @Override
-    public String serializeToStr() {
-        String str = this.getType().toString();
-        for (int i = 0; i < files.size(); i++) {
-            str += Separator.SEPARATOR + files.get(i).serializeToStr();
+    public String serializeToXML() {
+        try {
+            return XMLUtils.objectToXML(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
-        return str;
     }
 
-    public ArrayList<MessageFileWrapper> getFiles() {
+    public static RequestGetFile deserializeFromStr(String xml) {
+        try {
+            return (RequestGetFile) XMLUtils.xmlToObject(xml, RequestGetFile.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public List<MessageFileWrapper> getFiles() {
         return files;
     }
 }

@@ -1,20 +1,33 @@
 package commands;
 
 import command_models.*;
-import tools.Separator;
+import org.xml.sax.SAXException;
 
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.annotation.*;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "Command")
+@XmlSeeAlso({CommandAuthorization.class, CommandRegistration.class, CommandSendMessage.class, CommandSendFile.class, CommandGetMessage.class})
 public abstract class Command {
+    @XmlElement(name = "CommandType")
     private CommandType type;
+
+    @XmlElement(name = "JwtToken")
     private String jwt_token;
+
+    // Конструкторы, геттеры и сеттеры
 
     public Command(CommandType type, String jwt_token) {
         this.type = type;
         this.jwt_token = jwt_token;
     }
+    public Command(){}
 
     public CommandType getType() {
         return type;
     }
+
     public String getJwtToken() {
         return jwt_token;
     }
@@ -23,19 +36,26 @@ public abstract class Command {
 
     public abstract String serializeToStr();
 
-    public static Command deserializeFromStr(String str) {
-        String[] args = str.split(Separator.SEPARATOR);
-        String type = args[0];
-        Command command = switch (type) {
-            case "LOGIN" -> new CommandAuthorization(new Authorization(args[1], args[2]));
-            case "REGISTER" -> new CommandRegistration(new Registration(args[1], args[2]));
-            case "SEND_MESSAGE" -> new CommandSendMessage(new Message(args[1], args[2], args[3], args[4]), args[5]);
-            case "SEND_FILE" -> new CommandSendFile(new MessageFileWrapper(args[1], args[2], args[3], args[4]), args[5]);
-            case "GET_MESSAGE" -> new CommandGetMessage(args[1]);
-            default -> null;
-        };
-
-        return command;
+    public String serializeToXML() {
+        try {
+            return XMLUtils.objectToXML(this);
+        } catch (JAXBException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
+
+    public static Command deserializeFromStr(String str) {
+        try {
+            return XMLUtils.xmlToObject(str, Command.class);
+        } catch (JAXBException e) {
+            e.printStackTrace();
+            return null;
+        } catch (SAXException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
 }
 

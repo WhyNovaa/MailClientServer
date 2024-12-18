@@ -1,12 +1,28 @@
 package command_models;
 
+import org.xml.sax.SAXException;
 import tools.Separator;
 
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.annotation.*;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "MessageFileWrapper")
 public class MessageFileWrapper {
+    @XmlElement(name = "from")
     private String from;
+
+    @XmlElement(name = "to")
     private String to;
+
+    @XmlElement(name = "fileName")
     private String fileName;
+
+    @XmlElement(name = "fileContent")
     private String fileContent;
+
+    // Пустой конструктор для JAXB
+    public MessageFileWrapper() {}
 
     public MessageFileWrapper(String fileName, String from, String to, String fileContent) {
         this.fileName = fileName;
@@ -38,6 +54,7 @@ public class MessageFileWrapper {
         this.to = to;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -58,5 +75,26 @@ public class MessageFileWrapper {
         return this.fileName + Separator.SEPARATOR + this.from
                 + Separator.SEPARATOR + this.to + Separator.SEPARATOR + this.fileContent;
     }
-}
 
+    // Метод для сериализации в XML
+    public String serializeToXML() {
+        try {
+            return XMLUtils.objectToXML(this);
+        } catch (JAXBException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    // Метод для десериализации из XML
+    public static MessageFileWrapper deserializeFromXML(String xml) {
+        try {
+            return XMLUtils.xmlToObject(xml, MessageFileWrapper.class);
+        } catch (JAXBException e) {
+            e.printStackTrace();
+            return null;
+        } catch (SAXException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
