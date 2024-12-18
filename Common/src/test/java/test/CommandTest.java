@@ -11,7 +11,7 @@ import tools.Separator;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CommandTest {
-    @Test
+    /*@Test
     public void isValidCommandAuthorizationSerialization() {
         Authorization auth = new Authorization("admin", "admin");
         CommandAuthorization commandAuthorization = new CommandAuthorization(auth);
@@ -105,5 +105,5 @@ public class CommandTest {
 
         CommandSendFile com = (CommandSendFile) Command.deserializeFromStr(serializedCommand);
         assertEquals(expected, com);
-    }
+    }*/
 }

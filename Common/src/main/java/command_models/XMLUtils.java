@@ -22,14 +22,14 @@ public class XMLUtils {
         return sw.toString();
     }
 
-    public static <T> T xmlToObject(String xml, Class<T> clazz) throws JAXBException, SAXException, SAXException {
+    public static <T> T xmlToObject(String xml, Class<T> clazz) throws JAXBException, SAXException {
         StringReader sr = new StringReader(xml);
         JAXBContext context = JAXBContext.newInstance(clazz);
         Unmarshaller unmarshaller = context.createUnmarshaller();
 
         // Указываем схему для валидации
         SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        Schema schema = sf.newSchema(new File("C:\\Projects\\Java\\mail server\\MailClientServer\\Common\\src\\main\\java\\schemas\\schema.xsd"));
+        Schema schema = sf.newSchema(new File("Common\\src\\main\\java\\schemas\\schema.xsd"));
         unmarshaller.setSchema(schema);
 
         return clazz.cast(unmarshaller.unmarshal(sr));
