@@ -1,13 +1,27 @@
 package command_models;
 
+import org.xml.sax.SAXException;
 import tools.Separator;
 
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.annotation.*;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "Message")
 public class Message {
+    @XmlElement(name = "from")
     private String from;
+
+    @XmlElement(name = "to")
     private String to;
+
+    @XmlElement(name = "subject")
     private String subject;
+
+    @XmlElement(name = "body")
     private String body;
 
+    // Пустой конструктор для JAXB
     public Message() {}
 
     public Message(String subject, String from, String to, String body) {
@@ -68,5 +82,27 @@ public class Message {
     public static Message deserializeFromStr(String str) {
         String[] arr = str.split(Separator.SEPARATOR);
         return new Message(arr[0], arr[1], arr[2], arr[3]);
+    }
+
+    // Метод для сериализации в XML
+    public String serializeToXML() {
+        try {
+            return XMLUtils.objectToXML(this);
+        } catch (JAXBException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    // Метод для десериализации из XML
+    public static Message deserializeFromXML(String xml) {
+        try {
+            return XMLUtils.xmlToObject(xml, Message.class);
+        } catch (JAXBException e) {
+            e.printStackTrace();
+            return null;
+        } catch (SAXException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
