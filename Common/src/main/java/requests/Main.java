@@ -1,42 +1,44 @@
 package requests;
 
+import command_models.Message;
 import command_models.MessageFileWrapper;
-import org.xml.sax.SAXException;
-import requests.RequestGetFile;
-import command_models.XMLUtils;
+import commands.CommandSendFile;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
+        // Создание объекта MessageFileWrapper
+        /*List<Message> l = new ArrayList<Message>();
+        //l.add(new Message("subject", "from", "to", "body"));
+        //l.add(new Message("subject", "from", "to", "body"));
+        RequestGetMessage r = new RequestGetMessage(l);
+
+        String xml = r.serializeToXML();
+
+        System.out.println("Serialized XML:\n" + xml);
+
+
+        RequestGetMessage de = RequestGetMessage.deserializeFromStr(xml);
+        System.out.println("Deserialized: " + de);*/
+
+
         List<MessageFileWrapper> files = new ArrayList<>();
+        //files.add(new MessageFileWrapper("filename", "from", "to", "body"));
+
         RequestGetFile rf = new RequestGetFile(files);
+        //String xml = rf.serializeToXML();
 
-        try {
-            // Сериализация в XML
-            JAXBContext context = JAXBContext.newInstance(RequestGetFile.class);
-            Marshaller marshaller = context.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-            marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
+        //System.out.println("Serialized XML:\n" + xml);
+        //files.add(new MessageFileWrapper("filename", "from", "to", "body"));
+        //files.add(new MessageFileWrapper("filename", "from", "to", "body"));;
 
-            // Сериализация в строку
-            java.io.StringWriter sw = new java.io.StringWriter();
-            sw.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
-            marshaller.marshal(rf, sw);
-            String xmlString = sw.toString();
+        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> <RequestGetFile> <RequestType>GET_FILE</RequestType>  </RequestGetFile>";
+        RequestGetFile de = RequestGetFile.deserializeFromStr(xml);
+        System.out.println(de == null);
+        System.out.println("Deserialized: " + de);
 
-            System.out.println("Serialized XML:\n" + xmlString);
-
-            // Десериализация
-            RequestGetFile deserializedRf = (RequestGetFile) XMLUtils.xmlToObject(xmlString, RequestGetFile.class);
-            List<MessageFileWrapper> deserializedFiles = deserializedRf.getFiles();
-            System.out.println("Deserialized object files: " + deserializedFiles.size()); // Ожидается вывод: 0
-        } catch (JAXBException | SAXException e) {
-            e.printStackTrace();
-        }
     }
 }

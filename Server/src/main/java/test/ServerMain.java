@@ -76,7 +76,15 @@ class Handler implements Runnable {
             throw new RuntimeException(e);
         }
     }
-
+    void sendUnusualRequest(String xml) {
+        try {
+            writer.write(xml + "\n");
+            writer.flush();
+            System.out.println("Sent: " + xml);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
     public void handleAuthorization(Authorization auth) {
         try {
             User user = getUser(auth.getLogin());
@@ -135,8 +143,18 @@ class Handler implements Runnable {
 
     public void handleGetMessage(CommandGetMessage msg) throws SQLException {
         System.out.println("sending request");
-        sendRequest(new RequestGetMessage(getMessages(login)));
-        sendRequest(new RequestGetFile(getFiles(login)));
+        ArrayList<Message> messages = getMessages(login);
+        ArrayList<MessageFileWrapper> files = getFiles(login);
+        if (messages.isEmpty()) {
+            sendUnusualRequest("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> <RequestGetMessage> <RequestType>GET_MESSAGE</RequestType>  </RequestGetMessage>");
+        } else {
+            sendRequest(new RequestGetMessage(getMessages(login)));
+        }
+        if(files.isEmpty()) {
+            sendUnusualRequest("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> <RequestGetFile> <RequestType>GET_FILE</RequestType>  </RequestGetFile>");
+        } else {
+            sendRequest(new RequestGetFile(files));
+        }
     }
 
     private Boolean checkJWT(String token) {

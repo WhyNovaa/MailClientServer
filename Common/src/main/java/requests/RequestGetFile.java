@@ -4,6 +4,7 @@ import command_models.MessageFileWrapper;
 import command_models.XMLUtils;
 
 import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -12,7 +13,7 @@ import java.util.Objects;
 @XmlRootElement(name = "RequestGetFile")
 public class RequestGetFile extends Request {
 
-    @XmlElementWrapper(name = "MessageFileWrappers")
+    @XmlJavaTypeAdapter(MessageFileWrapperListAdapter.class)
     @XmlElement(name = "MessageFileWrapper")
     private List<MessageFileWrapper> files;
 

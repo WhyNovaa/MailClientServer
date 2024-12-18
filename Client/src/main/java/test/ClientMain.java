@@ -165,7 +165,7 @@ public class ClientMain {
 
     static void HandleRequest(String message) throws Exception {
         System.out.println(message);
-        Request req = (Request) XMLUtils.xmlToObject(message, Request.class);
+        Request req = XMLUtils.xmlToObject(message, Request.class);
 
         switch (req.getType()) {
             case RequestType.LOGIN -> {
