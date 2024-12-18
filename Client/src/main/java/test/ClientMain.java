@@ -50,6 +50,7 @@ public class ClientMain {
                             xmlMessage.append(line).append("\n");
                         }
 
+                        System.out.println(xmlMessage);
                         if (xmlMessage.length() == 0) {
                             // Нет новых сообщений, продолжаем ожидать
                             continue;
@@ -163,7 +164,8 @@ public class ClientMain {
 
 
     static void HandleRequest(String message) throws Exception {
-        Request req = XMLUtils.xmlToObject(message, Request.class);
+        System.out.println(message);
+        Request req = (Request) XMLUtils.xmlToObject(message, Request.class);
 
         switch (req.getType()) {
             case RequestType.LOGIN -> {
@@ -192,8 +194,9 @@ public class ClientMain {
                 }
             }
             case RequestType.GET_MESSAGE -> {
+                //RequestGetMessage getreq = ((RequestGetMessage) req);
                 ArrayList<Message> mes = (ArrayList<Message>) ((RequestGetMessage) req).getMessages();
-                if (mes.isEmpty()) {
+                if (mes == null || mes.isEmpty()) {
                     System.out.println("No new messages for you right now");
                 } else {
                     for (Message ur_message : mes) {
@@ -205,7 +208,7 @@ public class ClientMain {
             }
             case RequestType.GET_FILE -> {
                 ArrayList<MessageFileWrapper> files = (ArrayList<MessageFileWrapper>) ((RequestGetFile) req).getFiles();
-                if (files.isEmpty()) {
+                if (files == null || files.isEmpty()) {
                     System.out.println("No new files for you right now");
                 } else {
                     for (MessageFileWrapper file : files) {

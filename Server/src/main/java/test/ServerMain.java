@@ -122,8 +122,8 @@ class Handler implements Runnable {
 
     public void handleSendMessage(Message msg) throws SQLException {
         try {
-            addMessage(msg);
-            sendRequest(new RequestSendMessage(true));
+            boolean done = addMessage(msg);
+            sendRequest(new RequestSendMessage(done));
         } catch (SQLException e) {
             sendRequest(new RequestSendMessage(false));
             throw new RuntimeException(e);
@@ -132,8 +132,8 @@ class Handler implements Runnable {
 
     public void handleSendFile(MessageFileWrapper file) throws SQLException {
         try {
-            addFile(file);
-            sendRequest(new RequestSendMessage(true));
+            boolean done = addFile(file);
+            sendRequest(new RequestSendMessage(done));
         } catch (SQLException e) {
             sendRequest(new RequestSendMessage(false));
             throw new RuntimeException(e);
@@ -144,13 +144,13 @@ class Handler implements Runnable {
         System.out.println("sending request");
         ArrayList<Message> messages = getMessages(login);
         ArrayList<MessageFileWrapper> files = getFiles(login);
-        if (messages.isEmpty()) {
-            sendUnusualRequest("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> <RequestGetMessage> <RequestType>GET_MESSAGE</RequestType>  </RequestGetMessage>");
+        if (messages == null || messages.isEmpty()) {
+            sendUnusualRequest("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> <RequestGetMessage> <RequestType>GET_MESSAGE</RequestType> </RequestGetMessage>\n");
         } else {
             sendRequest(new RequestGetMessage(getMessages(login)));
         }
-        if(files.isEmpty()) {
-            sendUnusualRequest("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> <RequestGetFile> <RequestType>GET_FILE</RequestType>  </RequestGetFile>");
+        if(files == null || files.isEmpty()) {
+            sendUnusualRequest("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?> <RequestGetFile> <RequestType>GET_FILE</RequestType>  </RequestGetFile>\n");
         } else {
             sendRequest(new RequestGetFile(files));
         }

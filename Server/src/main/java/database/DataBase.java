@@ -111,12 +111,14 @@ public class DataBase {
         }
     }
 
-    public static void addMessage(Message mess) throws SQLException {
+    public static boolean addMessage(Message mess) throws SQLException {
         int from = getId(mess.getFrom());
         int to = getId(mess.getTo());
         if (to == -1) {
             System.out.println("Message from " + mess.getFrom() + " to " + mess.getTo() + " wasn't sent because receiver doen't exists");
+            return false;
         }
+
         String subject = mess.getSubject();
         String body = mess.getBody();
         String req = "INSERT INTO messages(sender_id, receiver_id, subject, body) VALUES (?, ?, ?, ?);";
@@ -135,6 +137,7 @@ public class DataBase {
         } else {
             System.out.println("Message from " + mess.getFrom() + " to " + mess.getTo() + " wasn't sent because of database errors");
         }
+        return true;
     }
 
     public static String getName(int id) throws SQLException {
@@ -174,14 +177,14 @@ public class DataBase {
         }
     }
 
-    public static void addFile(MessageFileWrapper messageFileWrapper) throws SQLException {
+    public static boolean addFile(MessageFileWrapper messageFileWrapper) throws SQLException {
         String fromUser = messageFileWrapper.getFrom();
         String toUser = messageFileWrapper.getTo();
         int from = getId(fromUser);
         int to = getId(toUser);
         if (to == -1) {
             System.out.println("File from " + fromUser + " to " + toUser + " wasn't sent because receiver doesn't exist");
-            return;
+            return false;
         }
 
         String fileName = messageFileWrapper.getFileName();
@@ -200,6 +203,7 @@ public class DataBase {
         } else {
             System.out.println("File from " + fromUser + " to " + toUser + " wasn't sent because of database errors");
         }
+        return true;
     }
 
     public static ArrayList<MessageFileWrapper> getFiles(String login) throws SQLException {
