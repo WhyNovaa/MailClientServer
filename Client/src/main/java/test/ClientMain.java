@@ -43,7 +43,6 @@ public class ClientMain {
                         StringBuilder xmlMessage = new StringBuilder();
                         String line;
 
-                        // Считываем сообщение до конца
                         while ((line = reader.readLine()) != null) {
                             if (line.trim().isEmpty()) {
                                 break;
@@ -52,7 +51,6 @@ public class ClientMain {
                         }
 
                         if (xmlMessage.length() == 0) {
-                            // Нет новых сообщений, продолжаем ожидать
                             continue;
                         }
                         HandleRequest(xmlMessage.toString());
@@ -135,7 +133,7 @@ public class ClientMain {
             readerThread.interrupt();
             System.exit(0);
         } catch (IOException e) {
-            System.err.println("Ошибка клиента: " + e.getMessage());
+            System.err.println("Client error: " + e.getMessage());
         }
     }
 

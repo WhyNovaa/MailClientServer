@@ -170,7 +170,6 @@ class Handler implements Runnable {
                 StringBuilder xmlMessage = new StringBuilder();
                 String line;
 
-                // Считываем сообщение до конца
                 while ((line = reader.readLine()) != null) {
                     if (line.trim().isEmpty()) {
                         break;
@@ -179,7 +178,6 @@ class Handler implements Runnable {
                 }
 
                 if (xmlMessage.length() == 0) {
-                    // Нет новых сообщений, продолжаем ожидать
                     continue;
                 }
 

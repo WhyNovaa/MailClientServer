@@ -49,9 +49,9 @@ public class DataBase {
                             ");";
 
             Statement state = con.createStatement();
+            state.execute(req);
             state.execute(fileTableReq);
             state.execute(messageTableReq);
-            state.execute(req);
             state.close();
 
         } catch (SQLException e) {
